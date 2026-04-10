@@ -1,0 +1,34 @@
+﻿<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ t('admin.title') }}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#f9e4db] min-h-screen">
+
+    <nav class="bg-[#5e2e1c] text-white shadow">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <span class="font-bold text-lg tracking-tight">
+                🎪 {{ t('admin.title') }}
+            </span>
+            <div class="flex items-center gap-4 text-sm">
+                <span class="text-brand-200">
+                    {{ admin_user ?? '' }}
+                </span>
+                <a href="/vystavovatele/admin/logout"
+                   class="bg-[#4a2416] hover:bg-brand-900 px-3 py-1.5
+                          rounded-lg transition-colors">
+                    {{ t('common.btn_logout') }}
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+<?php
+return [
+    'title'          => 'Administration',
+    'login_title'    => 'Admin Login',
+    'username'       => 'Username',
+    'password'       => 'Password',
+    'login_error'    => 'Invalid username or password',
+    'dashboard_title'=> 'Registration Overview',
+    'filter_festival'=> 'Filter by festival',
+    'filter_all'     => 'All festivals',
+    'filter_btn'     => 'Filter',
+    'total'          => 'Total registrations',
+    'col_id'         => '#',
+    'col_company'    => 'Company',
+    'col_contact'    => 'Contact',
+    'col_email'      => 'E-mail',
+    'col_phone'      => 'Phone',
+    'col_festivals'  => 'Festivals',
+    'col_created'    => 'Registration date',
+    'no_records'     => 'No registrations found',
+    'export_btn'     => 'Export to XLSX',
+];

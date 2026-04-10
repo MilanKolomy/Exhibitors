@@ -1,0 +1,336 @@
+﻿{% extends 'layouts/app.twig' %}
+
+{% block title %}
+	{{ t('registration.title') }}
+{% endblock %}
+
+{% block content %}
+	<div
+		class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+
+		{# Nadpis #}
+		<h1 class="text-2xl font-bold text-gray-900 mb-1">
+			{{ t('registration.title') }}
+		</h1>
+		<p class="text-gray-500 mb-8 text-sm">
+			{{ t('registration.subtitle') }}
+		</p>
+
+		{# Globální chyby #}
+		{% if errors|length > 0 %}
+			<div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+				<p class="font-semibold text-red-700 mb-2">
+					{% if current_locale() == 'cs' %}Prosím opravte následující chyby:
+						{% else %}Please fix the following errors:
+					{% endif %}
+				</p>
+				<ul class="list-disc list-inside text-red-600 text-sm space-y-1">
+					{% for error in errors %}
+						<li>{{ error }}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		{% endif %}
+
+		<form
+			method="POST" action="" x-data="registrationForm()" @submit="handleSubmit">
+
+			{# ── IČ + ARES ── #}
+			<div class="mb-6">
+				<label class="block text-sm font-semibold text-gray-700 mb-1">
+					{{ field_label('ico') }}
+					<span class="text-red-500">*</span>
+				</label>
+				<div class="flex gap-2">
+					<input type="text" name="ico" x-model="form.ico" maxlength="8" placeholder="12345678" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm
+																								                           focus:outline-none focus:ring-2 focus:ring-[#d96e45]
+																								                           {{ errors.ico is defined ? 'border-red-400 bg-red-50' : '' }}">
+					<button type="button" @click="loadAres()" :disabled="aresLoading || form.ico.length < 6" class="px-4 py-2 bg-[#743a25] text-white text-sm rounded-lg
+																												                           hover:bg-[#5e2e1c] disabled:opacity-40 disabled:cursor-not-allowed
+																												                           transition-colors whitespace-nowrap">
+						<span x-show="!aresLoading">{{ t('common.ares_load') }}</span>
+						<span x-show="aresLoading" x-cloak>{{ t('common.ares_loading') }}</span>
+					</button>
+				</div>
+				<p class="text-xs text-gray-400 mt-1">{{ field_hint('ico') }}</p>
+				{% if errors.ico is defined %}
+					<p class="text-xs text-red-500 mt-1">{{ errors.ico }}</p>
+				{% endif %}
+				{# ARES chybová zpráva #}
+				<p x-show="aresError" x-cloak class="text-xs text-red-500 mt-1">
+					{{ t('common.ares_error') }}
+				</p>
+			</div>
+
+			{# ── Firma ── #}
+			<div class="mb-6">
+				<label class="block text-sm font-semibold text-gray-700 mb-1">
+					{{ field_label('company') }}
+					<span class="text-red-500">*</span>
+				</label>
+				<input type="text" name="company" x-model="form.company" maxlength="255" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
+																				                       focus:outline-none focus:ring-2 focus:ring-[#d96e45]
+																				                       {{ errors.company is defined ? 'border-red-400 bg-red-50' : '' }}" value="{{ old.company ?? '' }}">
+				<p class="text-xs text-gray-400 mt-1">{{ field_hint('company') }}</p>
+				{% if errors.company is defined %}
+					<p class="text-xs text-red-500 mt-1">{{ errors.company }}</p>
+				{% endif %}
+			</div>
+
+			{# ── Adresa ── #}
+			<div class="mb-6">
+				<label class="block text-sm font-semibold text-gray-700 mb-1">
+					{{ field_label('address') }}
+					<span class="text-red-500">*</span>
+				</label>
+				<input type="text" name="address" x-model="form.address" maxlength="500" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
+																				                       focus:outline-none focus:ring-2 focus:ring-[#d96e45]
+																				                       {{ errors.address is defined ? 'border-red-400 bg-red-50' : '' }}" value="{{ old.address ?? '' }}">
+				<p class="text-xs text-gray-400 mt-1">{{ field_hint('address') }}</p>
+				{% if errors.address is defined %}
+					<p class="text-xs text-red-500 mt-1">{{ errors.address }}</p>
+				{% endif %}
+			</div>
+
+			{# ── DIČ ── #}
+			<div class="mb-6">
+				<label class="block text-sm font-semibold text-gray-700 mb-1">
+					{{ field_label('dic') }}
+				</label>
+				<input type="text" name="dic" maxlength="20" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
+																				                       focus:outline-none focus:ring-2 focus:ring-[#d96e45]" value="{{ old.dic ?? '' }}">
+				<p class="text-xs text-gray-400 mt-1">{{ field_hint('dic') }}</p>
+			</div>
+
+			{# ── 2 sloupce: Jméno + E-mail ── #}
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+				<div>
+					<label class="block text-sm font-semibold text-gray-700 mb-1">
+						{{ field_label('contact_name') }}
+						<span class="text-red-500">*</span>
+					</label>
+					<input type="text" name="contact_name" maxlength="150" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
+																								                           focus:outline-none focus:ring-2 focus:ring-[#d96e45]
+																								                           {{ errors.contact_name is defined ? 'border-red-400 bg-red-50' : '' }}" value="{{ old.contact_name ?? '' }}">
+					<p class="text-xs text-gray-400 mt-1">{{ field_hint('contact_name') }}</p>
+					{% if errors.contact_name is defined %}
+						<p class="text-xs text-red-500 mt-1">{{ errors.contact_name }}</p>
+					{% endif %}
+				</div>
+				<div>
+					<label class="block text-sm font-semibold text-gray-700 mb-1">
+						{{ field_label('email') }}
+						<span class="text-red-500">*</span>
+					</label>
+					<input type="email" name="email" maxlength="150" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
+																								                           focus:outline-none focus:ring-2 focus:ring-[#d96e45]
+																								                           {{ errors.email is defined ? 'border-red-400 bg-red-50' : '' }}" value="{{ old.email ?? '' }}">
+					<p class="text-xs text-gray-400 mt-1">{{ field_hint('email') }}</p>
+					{% if errors.email is defined %}
+						<p class="text-xs text-red-500 mt-1">{{ errors.email }}</p>
+					{% endif %}
+				</div>
+			</div>
+
+			{# ── 2 sloupce: Telefon + Web ── #}
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+				<div>
+					<label class="block text-sm font-semibold text-gray-700 mb-1">
+						{{ field_label('phone') }}
+						<span class="text-red-500">*</span>
+					</label>
+					<input type="text" name="phone" maxlength="50" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
+																								                           focus:outline-none focus:ring-2 focus:ring-[#d96e45]
+																								                           {{ errors.phone is defined ? 'border-red-400 bg-red-50' : '' }}" value="{{ old.phone ?? '' }}">
+					<p class="text-xs text-gray-400 mt-1">{{ field_hint('phone') }}</p>
+					{% if errors.phone is defined %}
+						<p class="text-xs text-red-500 mt-1">{{ errors.phone }}</p>
+					{% endif %}
+				</div>
+				<div>
+					<label class="block text-sm font-semibold text-gray-700 mb-1">
+						{{ field_label('website') }}
+					</label>
+					<input type="url" name="website" maxlength="255" placeholder="https://" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
+																								                           focus:outline-none focus:ring-2 focus:ring-[#d96e45]" value="{{ old.website ?? '' }}">
+					<p class="text-xs text-gray-400 mt-1">{{ field_hint('website') }}</p>
+				</div>
+			</div>
+
+			{# ── Sociální sítě ── #}
+			<div class="mb-6">
+				<label class="block text-sm font-semibold text-gray-700 mb-1">
+					{{ field_label('social_networks') }}
+				</label>
+				<textarea name="social_networks" rows="3" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
+																				                       focus:outline-none focus:ring-2 focus:ring-[#d96e45]">{{ old.social_networks ?? '' }}</textarea>
+				<p class="text-xs text-gray-400 mt-1">{{ field_hint('social_networks') }}</p>
+			</div>
+
+			{# ── Sortiment ── #}
+			<div class="mb-6">
+				<label class="block text-sm font-semibold text-gray-700 mb-1">
+					{{ field_label('sortiment') }}
+					<span class="text-red-500">*</span>
+				</label>
+				<textarea name="sortiment" rows="5" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
+																				                       focus:outline-none focus:ring-2 focus:ring-[#d96e45]
+																				                       {{ errors.sortiment is defined ? 'border-red-400 bg-red-50' : '' }}">{{ old.sortiment ?? '' }}</textarea>
+				<p class="text-xs text-gray-400 mt-1">{{ field_hint('sortiment') }}</p>
+				{% if errors.sortiment is defined %}
+					<p class="text-xs text-red-500 mt-1">{{ errors.sortiment }}</p>
+				{% endif %}
+			</div>
+
+			{# ── Festivaly ── #}
+			<div class="mb-6">
+				<label class="block text-sm font-semibold text-gray-700 mb-2">
+					{{ field_label('festivals') }}
+					<span class="text-red-500">*</span>
+				</label>
+				<p class="text-xs text-gray-400 mb-3">{{ field_hint('festivals') }}</p>
+				<div class="space-y-2">
+					{% for festival in festivals %}
+						<label class="flex items-start gap-3 p-3 rounded-lg border border-gray-200
+																																                              hover:border-[#e89a7a] hover:bg-[#fdf5f2] cursor-pointer
+																																                              transition-colors">
+							<input type="checkbox" name="festivals[]" value="{{ festival.id }}" {% if old.festivals is defined and festival.id in old.festivals %} checked {% endif %} class="mt-0.5 rounded text-[#743a25] focus:ring-[#d96e45]">
+							<div>
+								<span class="font-medium text-gray-800 text-sm">{{ festival.name }}</span>
+								<span class="text-gray-400 text-xs ml-2">
+									{{ festival.city }}
+									—
+									{{ festival.date|date('d. m. Y') }}
+								</span>
+							</div>
+						</label>
+					{% endfor %}
+				</div>
+				{% if errors.festivals is defined %}
+					<p class="text-xs text-red-500 mt-2">{{ errors.festivals }}</p>
+				{% endif %}
+			</div>
+
+			{# ── Oddělovač ── #}
+			<hr
+			class="border-gray-100 my-6">
+
+			{# ── Souhlas s podmínkami ── #}
+			<div class="mb-8">
+				<label class="flex items-start gap-3 cursor-pointer">
+					<input type="checkbox" name="terms" value="1" {% if old.terms is defined %} checked {% endif %} class="mt-0.5 rounded text-[#743a25] focus:ring-[#d96e45]">
+					<span class="text-sm text-gray-700">
+						{{ field_label('terms') }}
+						—
+						<a href="#" class="text-[#743a25] hover:underline">
+							{{ t('common.terms_link') }}
+						</a>
+						<span class="text-red-500">*</span>
+					</span>
+				</label>
+				{% if errors.terms is defined %}
+					<p class="text-xs text-red-500 mt-2">{{ errors.terms }}</p>
+				{% endif %}
+			</div>
+
+			{# ── reCAPTCHA placeholder ── #}
+			<div id="recaptcha" class="mb-6"></div>
+
+			{# reCAPTCHA token — skryté pole #}
+			<input
+			type="hidden" name="recaptcha_token" id="recaptcha_token">
+
+			{# Captcha chyba #}
+			{% if errors.captcha is defined %}
+				<div class="mb-4 bg-red-50 border border-red-200 text-red-700
+																								            text-sm rounded-lg px-4 py-3">
+					{{ errors.captcha }}
+				</div>
+			{% endif %}
+
+			{# ── Submit ── #}
+			<button type="submit" class="w-full bg-[#743a25] hover:bg-[#5e2e1c] text-white
+					               font-semibold py-3 px-6 rounded-xl transition-colors
+					               text-base shadow-sm">
+				{{ t('common.btn_submit') }}
+			</button>
+
+			<p class="text-xs text-gray-400 text-center mt-4">
+				{% if current_locale() == 'cs' %}
+					Pole označená
+					<span class="text-red-500">*</span>
+					jsou povinná.
+				{% else %}
+					Fields marked
+					<span class="text-red-500">*</span>
+					are required.
+				{% endif %}
+			</p>
+
+		</form>
+	</div>
+
+	{# ── Alpine.js komponenta ── #}
+	 <script>
+		function registrationForm() {
+		    return {
+		        form: {
+		            ico:     '{{ old.ico ?? '' }}',
+		            company: '{{ old.company ?? '' }}',
+		            address: '{{ old.address ?? '' }}',
+		        },
+		        aresLoading: false,
+		        aresError:   false,
+		
+		        async loadAres() {
+		            if (this.form.ico.length < 6) return;
+		
+		            this.aresLoading = true;
+		            this.aresError   = false;
+		
+		            try {
+		                const res  = await fetch(`/vystavovatele/api/ares/${this.form.ico}`);
+		                const data = await res.json();
+		
+		                if (data.success) {
+		                    this.form.company = data.company ?? '';
+		                    this.form.address = data.address ?? '';
+		                } else {
+		                    this.aresError = true;
+		                }
+		            } catch (e) {
+		                this.aresError = true;
+		            } finally {
+		                this.aresLoading = false;
+		            }
+		        },
+		
+		        async handleSubmit(e) {
+		            {% if recaptcha_enabled %}
+		            // Získáme reCAPTCHA token před odesláním
+		            e.preventDefault();
+		
+		            try {
+		                const token = await grecaptcha.execute(
+		                    '{{ recaptcha_site_key }}',
+		                    { action: 'register' }
+		                );
+		                document.getElementById('recaptcha_token').value = token;
+		            } catch (err) {
+		                console.error('reCAPTCHA error:', err);
+		            }
+		
+		            e.target.submit();
+		            {% endif %}
+		        }
+		    }
+		}
+		</script>
+
+	{% if app_env == 'production' %}
+		 <script src="https://www.google.com/recaptcha/api.js
+								                 ?render={{ recaptcha_site_key }}"></script>
+	{% endif %}
+
+{% endblock %}
+

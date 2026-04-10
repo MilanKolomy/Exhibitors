@@ -1,0 +1,25 @@
+# --- Composer & Dependencies ---
+/vendor/
+
+# --- PHP & Slim specific ---
+/cache/
+/temp/
+/logs/
+
+# --- PhpSpreadsheet / Office ---
+# Dočasné soubory vznikající při generování Excelů
+.php_cs.cache
+.phpunit.result.cache
+
+# --- OS & IDEs ---
+# Windows náhledy
+Thumbs.db
+desktop.ini
+
+# VS Code / PhpStorm
+.vscode/
+.idea/
+
+# --- Environment ---
+.env
+.env.local

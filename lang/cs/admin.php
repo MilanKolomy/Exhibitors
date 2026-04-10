@@ -1,0 +1,22 @@
+<?php
+return [
+    'title'          => 'Administrace',
+    'login_title'    => 'Přihlášení do administrace',
+    'username'       => 'Uživatelské jméno',
+    'password'       => 'Heslo',
+    'login_error'    => 'Nesprávné jméno nebo heslo',
+    'dashboard_title'=> 'Přehled registrací',
+    'filter_festival'=> 'Filtrovat dle festivalu',
+    'filter_all'     => 'Všechny festivaly',
+    'filter_btn'     => 'Filtrovat',
+    'total'          => 'Celkem registrací',
+    'col_id'         => '#',
+    'col_company'    => 'Firma',
+    'col_contact'    => 'Kontakt',
+    'col_email'      => 'E-mail',
+    'col_phone'      => 'Telefon',
+    'col_festivals'  => 'Festivaly',
+    'col_created'    => 'Datum registrace',
+    'no_records'     => 'Žádné registrace nenalezeny',
+    'export_btn'     => 'Exportovat do XLSX',
+];
