@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '/../vendor/autoload.php';
 
-$ico = '27082440'; // Škoda Auto — testovací IČ
+$ico = '25837516'; // Škoda Auto — testovací IČ
 
 $client = new GuzzleHttp\Client(['timeout' => 5]);
 

@@ -16,7 +16,7 @@
     </div>
 
     {# Export — respektuje aktuální filtr #}
-    <a href="/vystavovatele/admin/export{% if selected_festival %}?festival={{ selected_festival }}{% endif %}"
+    <a href="{{ base_path }}/admin/export{% if selected_festival %}?festival={{ selected_festival }}{% endif %}"
        class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700
               text-white text-sm font-semibold px-4 py-2.5 rounded-xl
               transition-colors shadow-sm">
@@ -26,7 +26,7 @@
 
 {# ── Filtr dle festivalu ── #}
 <div class="bg-white rounded-xl border border-brand-200 p-4 mb-6">
-    <form method="GET" action="/vystavovatele/admin/"
+    <form method="GET" action="{{ base_path }}/admin/"
           class="flex flex-col sm:flex-row gap-3 items-end">
         <div class="flex-1">
             <label class="block text-xs font-semibold text-[#743a25] mb-1">
@@ -51,7 +51,7 @@
             {{ t('admin.filter_btn') }}
         </button>
         {% if selected_festival %}
-        <a href="/vystavovatele/admin/"
+        <a href="{{ base_path }}/admin/"
            class="text-sm text-brand-500 hover:text-[#5e2e1c] py-2 px-2">
             ✕ Reset
         </a>
@@ -131,4 +131,5 @@
 </div>
 
 {% endblock %}
+
 

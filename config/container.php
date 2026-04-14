@@ -41,13 +41,16 @@ return [
                     : false,
                'auto_reload' => true,
           ]);
+          
 
           // Globální proměnné dostupné ve všech šablonách
+          $twig->addGlobal('base_path', rtrim(getenv('APP_BASE_PATH') ?: '', '/'));
           $twig->addGlobal('app_name', 'Registrace vystavovatelů');
           $twig->addFunction(new \Twig\TwigFunction('current_locale', function () {
                return $_SESSION['locale'] ?? 'cs';
           }));
           $twig->addGlobal('festivals', require __DIR__ . '/festivals.php');
+          
 
           // V definici Environment::class — přidej za $twig = new Environment(...):
 
@@ -104,7 +107,10 @@ return [
                $c->get(\Twig\Environment::class),
                $c->get(\App\Models\Exhibitor::class),
                $c->get(\App\Models\ExhibitorFestival::class),
-               $c->get(\App\Services\CaptchaService::class)
+               $c->get(\App\Services\CaptchaService::class),
+               $c->get(\App\Services\MailService::class)
           );
      },
+
+     \App\Services\MailService::class => \DI\autowire(),
 ];

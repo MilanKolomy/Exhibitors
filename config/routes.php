@@ -14,7 +14,7 @@ return function (App $app): void {
     // --- Přesměrování z / na výchozí jazyk ---
     $app->get('/', function ($request, $response) {
         return $response
-          ->withHeader('Location', '/vystavovatele/cs/registrace')
+          ->withHeader('Location', '/Exhibitors/cs/registrace')
           ->withStatus(302);
     });
 

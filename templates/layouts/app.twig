@@ -23,6 +23,28 @@
 			html {
 				font-size: 18px;
 			}
+
+			@keyframes shake {
+				0,
+				100% {
+					transform: translateX(0);
+				}
+				20% {
+					transform: translateX(-6px);
+				}
+				40% {
+					transform: translateX(6px);
+				}
+				60% {
+					transform: translateX(-4px);
+				}
+				80% {
+					transform: translateX(4px);
+				}
+			}
+			.shake {
+				animation: shake 0.5s ease-in-out;
+			}
 		</style>
 	</head>
 	<body
@@ -36,8 +58,8 @@
 
 					{# Vlevo — logo #}
 					<div class="flex items-center">
-						<a href="/vystavovatele/{{ current_locale() == 'cs' ? 'cs/registrace' : 'en/registration' }}">
-							<img src="/vystavovatele/assets/img/logo.png" alt="Logo" class="h-10 w-auto">
+						<a href="/Exhibitors/{{ current_locale() == 'cs' ? 'cs/registrace' : 'en/registration' }}">
+							<img src="/Exhibitors/assets/img/logo.png" alt="Logo" class="h-10 w-auto">
 						</a>
 					</div>
 
@@ -50,7 +72,7 @@
 
 					{# Vpravo — přepínač jazyka #}
 					<div class="flex justify-end">
-						<a href="{{ lang_switch_url is defined ? lang_switch_url : (current_locale() == 'cs' ? '/vystavovatele/en/registration' : '/vystavovatele/cs/registrace') }}" class="text-base text-[#743a25] hover:text-[#4a2416] font-medium">
+						<a href="{{ lang_switch_url is defined ? lang_switch_url : (current_locale() == 'cs' ? '/Exhibitors/en/registration' : '/Exhibitors/cs/registrace') }}" class="text-base text-[#743a25] hover:text-[#4a2416] font-medium">
 							🌐
 							{{ current_locale() == 'cs' ? 'EN' : 'CS' }}
 						</a>
@@ -73,4 +95,3 @@
 
 		</body>
 	</html>
-

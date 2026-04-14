@@ -25,7 +25,7 @@ class LocaleMiddleware implements MiddlewareInterface
         $segments = explode('/', trim($path, '/'));
 
         // Hledáme locale kdekoliv v segmentech — ne jen na první pozici
-        // /vystavovatele/en/registration → ['vystavovatele', 'en', 'registration']
+        // {{ base_path }}/en/registration → ['vystavovatele', 'en', 'registration']
         $locale = null;
         foreach ($segments as $segment) {
             if (in_array($segment, self::SUPPORTED, true)) {

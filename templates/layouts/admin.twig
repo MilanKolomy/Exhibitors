@@ -17,7 +17,7 @@
                 <span class="text-brand-200">
                     {{ admin_user ?? '' }}
                 </span>
-                <a href="/vystavovatele/admin/logout"
+                <a href="{{ base_path }}/admin/logout"
                    class="bg-[#4a2416] hover:bg-brand-900 px-3 py-1.5
                           rounded-lg transition-colors">
                     {{ t('common.btn_logout') }}
@@ -32,3 +32,4 @@
 
 </body>
 </html>
+

@@ -24,7 +24,7 @@
     </div>
     {% endif %}
 
-    <form method="POST" action="/vystavovatele/admin/login">
+    <form method="POST" action="{{ base_path }}/admin/login">
         <div class="mb-4">
             <label class="block text-sm font-semibold text-[#5e2e1c] mb-1">
                 {{ t('admin.username') }}
@@ -65,4 +65,5 @@
 
 </body>
 </html>
+
 

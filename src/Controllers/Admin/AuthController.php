@@ -25,7 +25,7 @@ class AuthController
         // Už přihlášen — přesměruj na dashboard
         if (!empty($_SESSION['admin_logged_in'])) {
             return $response
-                ->withHeader('Location', '/vystavovatele/admin/')
+                ->withHeader('Location', basePath('admin/'))
                 ->withStatus(302);
         }
 
@@ -59,7 +59,7 @@ class AuthController
             $_SESSION['admin_user']      = $user;
 
             return $response
-                ->withHeader('Location', '/vystavovatele/admin/')
+                ->withHeader('Location', basePath('admin/'))
                 ->withStatus(302);
         }
 
@@ -67,7 +67,7 @@ class AuthController
         $_SESSION['admin_error'] = __t('admin.login_error', [], 'cs');
 
         return $response
-            ->withHeader('Location', '/vystavovatele/admin/login')
+            ->withHeader('Location', basePath('admin/login'))
             ->withStatus(302);
     }
 
@@ -80,7 +80,7 @@ class AuthController
         session_destroy();
 
         return $response
-            ->withHeader('Location', '/vystavovatele/admin/login')
+            ->withHeader('Location', basePath('admin/login'))
             ->withStatus(302);
     }
 }

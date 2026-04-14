@@ -21,7 +21,10 @@ AppFactory::setContainer($container);
 $app = AppFactory::create();
 
 // Lokální vývoj v subdirectory
-$app->setBasePath('/vystavovatele');
+$basePath = getenv('APP_BASE_PATH') ?: '';
+if ($basePath) {
+    $app->setBasePath($basePath);
+}
 
 $app->addRoutingMiddleware();
 $errorMiddleware = $app->addErrorMiddleware(

@@ -1,27 +1,85 @@
 ﻿{% extends 'layouts/app.twig' %}
-
 {% block title %}
 	{{ t('registration.title') }}
 {% endblock %}
 
 {% block content %}
+
+	{# Předáme data do Alpine.js jako JSON #}
+	{% set festivalsJson = festivals|json_encode %}
+	{% set pricingJson   = pricing|json_encode %}
+	{% set oldFestivalsJson = old_festivals is defined ? old_festivals : '{}' %}
+
+	{# Při chybě serveru vrátíme uživatele na správný krok #}
+	{% set initialStep = 1 %}
+	{% if errors|length > 0 %}
+		{% set initialStep = 3 %}
+		{# festivaly / captcha chyba #}
+		{% if errors.company is defined or errors.email is defined
+          or errors.phone is defined or errors.sortiment is defined %}
+			{% set initialStep = 2 %}
+			{# kontaktní údaje #}
+		{% endif %}
+	{% endif %}
+
 	<div
-		class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+		x-data="registrationForm({{ festivalsJson }}, {{ pricingJson }}, {{ oldFestivalsJson }}, {{ initialStep }})" x-cloak class="max-w-3xl mx-auto">
 
-		{# Nadpis #}
-		<h1 class="text-2xl font-bold text-gray-900 mb-1">
-			{{ t('registration.title') }}
-		</h1>
-		<p class="text-gray-500 mb-8 text-sm">
-			{{ t('registration.subtitle') }}
-		</p>
+		{# ══════════════════════════════════════════════════
+																												   PROGRESS BAR
+																												══════════════════════════════════════════════════ #}
+		<div class="mb-8">
+			<div
+				class="flex items-center justify-between relative">
 
-		{# Globální chyby #}
+				{# Spojovací linka — pozadí #}
+				<div class="absolute top-5 left-0 right-0 h-0.5 z-0" style="background-color: rgba(116,58,37,0.2)"></div>
+
+				{# Spojovací linka — progress #}
+				<div class="absolute top-5 left-0 h-0.5 z-0 transition-all duration-500" style="background-color: #743a25" :style="'width: ' + ((step - 1) / 3 * 100) + '%'"></div>
+
+				{# Kroky #}
+				<template x-for="(label, index) in [
+																																																																						            '{% if current_locale() == 'cs' %}Souhlas{% else %}Agreement{% endif %}',
+																																																																						            '{% if current_locale() == 'cs' %}Kontakt{% else %}Contact{% endif %}',
+																																																																						            '{% if current_locale() == 'cs' %}Festivaly{% else %}Festivals{% endif %}',
+																																																																						            '{% if current_locale() == 'cs' %}Souhrn{% else %}Summary{% endif %}'
+																																																																						        ]" :key="index">
+					<div
+						class="flex flex-col items-center z-10">
+
+						{# Kolečko — klikatelné pro dokončené kroky #}
+						<div class="w-10 h-10 rounded-full flex items-center justify-center
+																																																																													            font-bold text-base transition-all duration-300 border-2" :style="step > index + 1
+																																																																													         ? 'background-color:#743a25; border-color:#743a25; color:#fff'
+																																																																													         : step === index + 1
+																																																																													             ? 'background-color:#743a25; border-color:#743a25; color:#fff'
+																																																																													             : 'background-color:#fff; border-color:#743a25; color:#743a25'" :class="step > index + 1 && !submitted ? 'cursor-pointer hover:opacity-80' : 'cursor-default'" @click="goToStep(index)">
+							<template x-if="step > index + 1">
+								<span>✓</span>
+							</template>
+							<template x-if="step <= index + 1">
+								<span x-text="index + 1"></span>
+							</template>
+						</div>
+
+						{# Popisek — také klikatelný #}
+						<span class="mt-2 text-xs font-semibold transition-all duration-300" :style="step >= index + 1
+																																																																													          ? 'color:#743a25'
+																																																																													          : 'color:rgba(116,58,37,0.4)'" :class="step > index + 1 && !submitted ? 'cursor-pointer hover:underline' : ''" @click="goToStep(index)" x-text="label"></span>
+
+					</div>
+				</template>
+
+			</div>
+		</div>
+
+		{# Serverové chyby #}
 		{% if errors|length > 0 %}
 			<div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
 				<p class="font-semibold text-red-700 mb-2">
-					{% if current_locale() == 'cs' %}Prosím opravte následující chyby:
-						{% else %}Please fix the following errors:
+					{% if current_locale() == 'cs' %}Prosím opravte chyby:
+						{% else %}Please fix the errors:
 					{% endif %}
 				</p>
 				<ul class="list-disc list-inside text-red-600 text-sm space-y-1">
@@ -32,230 +90,581 @@
 			</div>
 		{% endif %}
 
-		<form
-			method="POST" action="" x-data="registrationForm()" @submit="handleSubmit">
+		<form method="POST" action="" @submit="handleSubmit">
 
-			{# ── IČ + ARES ── #}
-			<div class="mb-6">
-				<label class="block text-sm font-semibold text-gray-700 mb-1">
-					{{ field_label('ico') }}
-					<span class="text-red-500">*</span>
-				</label>
-				<div class="flex gap-2">
-					<input type="text" name="ico" x-model="form.ico" maxlength="8" placeholder="12345678" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm
-																								                           focus:outline-none focus:ring-2 focus:ring-[#d96e45]
-																								                           {{ errors.ico is defined ? 'border-red-400 bg-red-50' : '' }}">
-					<button type="button" @click="loadAres()" :disabled="aresLoading || form.ico.length < 6" class="px-4 py-2 bg-[#743a25] text-white text-sm rounded-lg
-																												                           hover:bg-[#5e2e1c] disabled:opacity-40 disabled:cursor-not-allowed
-																												                           transition-colors whitespace-nowrap">
-						<span x-show="!aresLoading">{{ t('common.ares_load') }}</span>
-						<span x-show="aresLoading" x-cloak>{{ t('common.ares_loading') }}</span>
-					</button>
-				</div>
-				<p class="text-xs text-gray-400 mt-1">{{ field_hint('ico') }}</p>
-				{% if errors.ico is defined %}
-					<p class="text-xs text-red-500 mt-1">{{ errors.ico }}</p>
-				{% endif %}
-				{# ARES chybová zpráva #}
-				<p x-show="aresError" x-cloak class="text-xs text-red-500 mt-1">
-					{{ t('common.ares_error') }}
-				</p>
-			</div>
-
-			{# ── Firma ── #}
-			<div class="mb-6">
-				<label class="block text-sm font-semibold text-gray-700 mb-1">
-					{{ field_label('company') }}
-					<span class="text-red-500">*</span>
-				</label>
-				<input type="text" name="company" x-model="form.company" maxlength="255" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
-																				                       focus:outline-none focus:ring-2 focus:ring-[#d96e45]
-																				                       {{ errors.company is defined ? 'border-red-400 bg-red-50' : '' }}" value="{{ old.company ?? '' }}">
-				<p class="text-xs text-gray-400 mt-1">{{ field_hint('company') }}</p>
-				{% if errors.company is defined %}
-					<p class="text-xs text-red-500 mt-1">{{ errors.company }}</p>
-				{% endif %}
-			</div>
-
-			{# ── Adresa ── #}
-			<div class="mb-6">
-				<label class="block text-sm font-semibold text-gray-700 mb-1">
-					{{ field_label('address') }}
-					<span class="text-red-500">*</span>
-				</label>
-				<input type="text" name="address" x-model="form.address" maxlength="500" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
-																				                       focus:outline-none focus:ring-2 focus:ring-[#d96e45]
-																				                       {{ errors.address is defined ? 'border-red-400 bg-red-50' : '' }}" value="{{ old.address ?? '' }}">
-				<p class="text-xs text-gray-400 mt-1">{{ field_hint('address') }}</p>
-				{% if errors.address is defined %}
-					<p class="text-xs text-red-500 mt-1">{{ errors.address }}</p>
-				{% endif %}
-			</div>
-
-			{# ── DIČ ── #}
-			<div class="mb-6">
-				<label class="block text-sm font-semibold text-gray-700 mb-1">
-					{{ field_label('dic') }}
-				</label>
-				<input type="text" name="dic" maxlength="20" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
-																				                       focus:outline-none focus:ring-2 focus:ring-[#d96e45]" value="{{ old.dic ?? '' }}">
-				<p class="text-xs text-gray-400 mt-1">{{ field_hint('dic') }}</p>
-			</div>
-
-			{# ── 2 sloupce: Jméno + E-mail ── #}
-			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-				<div>
-					<label class="block text-sm font-semibold text-gray-700 mb-1">
-						{{ field_label('contact_name') }}
-						<span class="text-red-500">*</span>
-					</label>
-					<input type="text" name="contact_name" maxlength="150" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
-																								                           focus:outline-none focus:ring-2 focus:ring-[#d96e45]
-																								                           {{ errors.contact_name is defined ? 'border-red-400 bg-red-50' : '' }}" value="{{ old.contact_name ?? '' }}">
-					<p class="text-xs text-gray-400 mt-1">{{ field_hint('contact_name') }}</p>
-					{% if errors.contact_name is defined %}
-						<p class="text-xs text-red-500 mt-1">{{ errors.contact_name }}</p>
-					{% endif %}
-				</div>
-				<div>
-					<label class="block text-sm font-semibold text-gray-700 mb-1">
-						{{ field_label('email') }}
-						<span class="text-red-500">*</span>
-					</label>
-					<input type="email" name="email" maxlength="150" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
-																								                           focus:outline-none focus:ring-2 focus:ring-[#d96e45]
-																								                           {{ errors.email is defined ? 'border-red-400 bg-red-50' : '' }}" value="{{ old.email ?? '' }}">
-					<p class="text-xs text-gray-400 mt-1">{{ field_hint('email') }}</p>
-					{% if errors.email is defined %}
-						<p class="text-xs text-red-500 mt-1">{{ errors.email }}</p>
-					{% endif %}
-				</div>
-			</div>
-
-			{# ── 2 sloupce: Telefon + Web ── #}
-			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-				<div>
-					<label class="block text-sm font-semibold text-gray-700 mb-1">
-						{{ field_label('phone') }}
-						<span class="text-red-500">*</span>
-					</label>
-					<input type="text" name="phone" maxlength="50" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
-																								                           focus:outline-none focus:ring-2 focus:ring-[#d96e45]
-																								                           {{ errors.phone is defined ? 'border-red-400 bg-red-50' : '' }}" value="{{ old.phone ?? '' }}">
-					<p class="text-xs text-gray-400 mt-1">{{ field_hint('phone') }}</p>
-					{% if errors.phone is defined %}
-						<p class="text-xs text-red-500 mt-1">{{ errors.phone }}</p>
-					{% endif %}
-				</div>
-				<div>
-					<label class="block text-sm font-semibold text-gray-700 mb-1">
-						{{ field_label('website') }}
-					</label>
-					<input type="url" name="website" maxlength="255" placeholder="https://" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
-																								                           focus:outline-none focus:ring-2 focus:ring-[#d96e45]" value="{{ old.website ?? '' }}">
-					<p class="text-xs text-gray-400 mt-1">{{ field_hint('website') }}</p>
-				</div>
-			</div>
-
-			{# ── Sociální sítě ── #}
-			<div class="mb-6">
-				<label class="block text-sm font-semibold text-gray-700 mb-1">
-					{{ field_label('social_networks') }}
-				</label>
-				<textarea name="social_networks" rows="3" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
-																				                       focus:outline-none focus:ring-2 focus:ring-[#d96e45]">{{ old.social_networks ?? '' }}</textarea>
-				<p class="text-xs text-gray-400 mt-1">{{ field_hint('social_networks') }}</p>
-			</div>
-
-			{# ── Sortiment ── #}
-			<div class="mb-6">
-				<label class="block text-sm font-semibold text-gray-700 mb-1">
-					{{ field_label('sortiment') }}
-					<span class="text-red-500">*</span>
-				</label>
-				<textarea name="sortiment" rows="5" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
-																				                       focus:outline-none focus:ring-2 focus:ring-[#d96e45]
-																				                       {{ errors.sortiment is defined ? 'border-red-400 bg-red-50' : '' }}">{{ old.sortiment ?? '' }}</textarea>
-				<p class="text-xs text-gray-400 mt-1">{{ field_hint('sortiment') }}</p>
-				{% if errors.sortiment is defined %}
-					<p class="text-xs text-red-500 mt-1">{{ errors.sortiment }}</p>
-				{% endif %}
-			</div>
-
-			{# ── Festivaly ── #}
-			<div class="mb-6">
-				<label class="block text-sm font-semibold text-gray-700 mb-2">
-					{{ field_label('festivals') }}
-					<span class="text-red-500">*</span>
-				</label>
-				<p class="text-xs text-gray-400 mb-3">{{ field_hint('festivals') }}</p>
-				<div class="space-y-2">
-					{% for festival in festivals %}
-						<label class="flex items-start gap-3 p-3 rounded-lg border border-gray-200
-																																                              hover:border-[#e89a7a] hover:bg-[#fdf5f2] cursor-pointer
-																																                              transition-colors">
-							<input type="checkbox" name="festivals[]" value="{{ festival.id }}" {% if old.festivals is defined and festival.id in old.festivals %} checked {% endif %} class="mt-0.5 rounded text-[#743a25] focus:ring-[#d96e45]">
-							<div>
-								<span class="font-medium text-gray-800 text-sm">{{ festival.name }}</span>
-								<span class="text-gray-400 text-xs ml-2">
-									{{ festival.city }}
-									—
-									{{ festival.date|date('d. m. Y') }}
-								</span>
-							</div>
-						</label>
-					{% endfor %}
-				</div>
-				{% if errors.festivals is defined %}
-					<p class="text-xs text-red-500 mt-2">{{ errors.festivals }}</p>
-				{% endif %}
-			</div>
-
-			{# ── Oddělovač ── #}
-			<hr
-			class="border-gray-100 my-6">
-
-			{# ── Souhlas s podmínkami ── #}
-			<div class="mb-8">
-				<label class="flex items-start gap-3 cursor-pointer">
-					<input type="checkbox" name="terms" value="1" {% if old.terms is defined %} checked {% endif %} class="mt-0.5 rounded text-[#743a25] focus:ring-[#d96e45]">
-					<span class="text-sm text-gray-700">
-						{{ field_label('terms') }}
-						—
-						<a href="#" class="text-[#743a25] hover:underline">
-							{{ t('common.terms_link') }}
-						</a>
-						<span class="text-red-500">*</span>
-					</span>
-				</label>
-				{% if errors.terms is defined %}
-					<p class="text-xs text-red-500 mt-2">{{ errors.terms }}</p>
-				{% endif %}
-			</div>
-
-			{# ── reCAPTCHA placeholder ── #}
-			<div id="recaptcha" class="mb-6"></div>
-
-			{# reCAPTCHA token — skryté pole #}
+			<input type="hidden" name="recaptcha_token" id="recaptcha_token">
+			<input type="hidden" name="festivals_data" :value="JSON.stringify(selected)">
 			<input
-			type="hidden" name="recaptcha_token" id="recaptcha_token">
+			type="hidden" name="terms" :value="termsAccepted ? '1' : '0'">
 
-			{# Captcha chyba #}
-			{% if errors.captcha is defined %}
-				<div class="mb-4 bg-red-50 border border-red-200 text-red-700
-																								            text-sm rounded-lg px-4 py-3">
-					{{ errors.captcha }}
+			{# ══════════════════════════════════════════════════
+																																													           KROK 1 — SOUHLAS
+																																													        ══════════════════════════════════════════════════ #}
+			<div x-show="step === 1" x-transition.opacity>
+				<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+
+					<h2 class="text-2xl font-bold text-gray-900 mb-2">
+						{% if current_locale() == 'cs' %}Důležité informace{% else %}Important Information
+						{% endif %}
+					</h2>
+					<p class="text-gray-500 text-base mb-8">
+						{% if current_locale() == 'cs' %}
+							Pro pokračování je nutné potvrdit souhlas s podmínkami registrace.
+						{% else %}
+							To continue, you must confirm your agreement with the registration terms.
+						{% endif %}
+					</p>
+
+					{# Info box #}
+					<div class="bg-[#fdf5f2] border border-[#e89a7a] rounded-xl p-6 mb-8">
+						<div class="flex gap-4">
+							<div class="text-3xl">🍫</div>
+							<div>
+								<h3 class="font-bold text-[#743a25] mb-2">
+									{% if current_locale() == 'cs' %}
+										Před registrací si prosím přečtěte:
+									{% else %}
+										Please read before registering:
+									{% endif %}
+								</h3>
+								<ul class="text-gray-700 text-base space-y-1 list-disc list-inside">
+									{% if current_locale() == 'cs' %}
+										<li>Registrace je závazná po odeslání formuláře</li>
+										<li>Ceny jsou uvedeny bez DPH</li>
+										<li>Storno podmínky jsou součástí obchodních podmínek</li>
+										<li>Platba probíhá na základě vystavené faktury</li>
+									{% else %}
+										<li>Registration is binding upon form submission</li>
+										<li>Prices are listed without VAT</li>
+										<li>Cancellation policy is part of the terms</li>
+										<li>Payment is based on the issued invoice</li>
+									{% endif %}
+								</ul>
+							</div>
+						</div>
+					</div>
+
+					{# Souhlas checkbox #}
+					<label
+						class="flex items-start gap-4 cursor-pointer group">
+						{# Krok 1 — checkbox BEZ name, jen vizuální #}
+						<input type="checkbox" x-model="termsAccepted" class="mt-1 w-5 h-5 rounded text-[#743a25] focus:ring-[#d96e45] cursor-pointer">
+						<span class="text-base text-gray-700 leading-relaxed">
+							{% if current_locale() == 'cs' %}
+								Potvrzuji, že jsem si přečetl(a)
+								<a href="{{ base_path }}/cs/podminky" target="_blank" class="text-[#743a25] hover:underline font-semibold">
+									Důležité informace k registraci
+								</a>
+								a souhlasím s jejich obsahem.
+							{% else %}
+								I confirm that I have read the
+								<a href="{{ base_path }}/en/terms" target="_blank" class="text-[#743a25] hover:underline font-semibold">
+									Important Registration Information
+								</a>
+								and agree with its contents.
+							{% endif %}
+						</span>
+					</label>
+
+					{# Upozornění pokud nezaškrtnuto #}
+					<p x-show="!termsAccepted" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="mt-3 text-sm text-[#743a25] ml-9 italic">
+						{% if current_locale() == 'cs' %}
+							Pro vstup do formuláře je nutné souhlasit s podmínkami.
+						{% else %}
+							You must agree to the terms to proceed.
+						{% endif %}
+					</p>
+
 				</div>
-			{% endif %}
+			</div>
 
-			{# ── Submit ── #}
-			<button type="submit" class="w-full bg-[#743a25] hover:bg-[#5e2e1c] text-white
-					               font-semibold py-3 px-6 rounded-xl transition-colors
-					               text-base shadow-sm">
-				{{ t('common.btn_submit') }}
-			</button>
+			{# ══════════════════════════════════════════════════
+																																													           KROK 2 — KONTAKTNÍ INFORMACE
+																																													        ══════════════════════════════════════════════════ #}
+			<div x-show="step === 2" x-transition.opacity>
+				<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
 
-			<p class="text-xs text-gray-400 text-center mt-4">
+					<h2 class="text-2xl font-bold text-gray-900 mb-2">
+						{{ t('registration.title') }}
+					</h2>
+					<p class="text-gray-500 text-base mb-8">{{ t('registration.subtitle') }}</p>
+
+					{# IČ + ARES #}
+					<div class="mb-6">
+						<label class="block text-base font-semibold text-gray-700 mb-1">
+							{{ field_label('ico') }}
+							<span class="text-red-500">*</span>
+						</label>
+						<div class="flex gap-2">
+                                   <input type="text" name="ico" x-model="contact.ico" maxlength="8" placeholder="12345678" class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-[#d96e45]" :class="{'border-red-400': step2errors.ico}">
+							<button type="button" @click="loadAres()" :disabled="aresLoading || contact.ico.length < 6" class="px-4 py-2 bg-[#743a25] text-white text-base rounded-lg
+																																																																																																																																							                                       hover:bg-[#5e2e1c] disabled:opacity-40 disabled:cursor-not-allowed
+																																																																																																																																							                                       transition-colors whitespace-nowrap">
+								<span x-show="!aresLoading">{{ t('common.ares_load') }}</span>
+								<span x-show="aresLoading" x-cloak>{{ t('common.ares_loading') }}</span>
+							</button>
+						</div>
+						<p class="text-sm text-gray-400 mt-1">{{ field_hint('ico') }}</p>
+                              <p x-show="step2errors.ico"
+                              x-text="step2errors.ico"
+                              class="text-sm text-red-500 mt-1">
+                              </p>
+						<p x-show="aresError" class="text-sm text-red-500 mt-1">
+							{{ t('common.ares_error') }}
+						</p>
+					</div>
+
+					{# Firma #}
+					<div class="mb-6">
+						<label class="block text-base font-semibold text-gray-700 mb-1">
+							{{ field_label('company') }}
+							<span class="text-red-500">*</span>
+						</label>
+						<input type="text" name="company" x-model="contact.company" maxlength="255" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base
+																																																																																																									                                  focus:outline-none focus:ring-2 focus:ring-[#d96e45]" :class="{'border-red-400': step2errors.company}">
+						<p class="text-sm text-gray-400 mt-1">{{ field_hint('company') }}</p>
+						<p x-show="step2errors.company" x-text="step2errors.company" class="text-sm text-red-500 mt-1"></p>
+					</div>
+
+					{# Adresa #}
+					<div class="mb-6">
+						<label class="block text-base font-semibold text-gray-700 mb-1">
+							{{ field_label('address') }}
+							<span class="text-red-500">*</span>
+						</label>
+						<input type="text" name="address" x-model="contact.address" maxlength="500" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base
+																																																																																																									                                  focus:outline-none focus:ring-2 focus:ring-[#d96e45]" :class="{'border-red-400': step2errors.address}">
+						<p class="text-sm text-gray-400 mt-1">{{ field_hint('address') }}</p>
+						<p x-show="step2errors.address" x-text="step2errors.address" class="text-sm text-red-500 mt-1"></p>
+					</div>
+
+					{# DIČ #}
+					<div class="mb-6">
+						<label class="block text-base font-semibold text-gray-700 mb-1">
+							{{ field_label('dic') }}
+						</label>
+						<input type="text" name="dic" x-model="contact.dic" maxlength="20" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base
+																																																																																																									                                  focus:outline-none focus:ring-2 focus:ring-[#d96e45]">
+						<p class="text-sm text-gray-400 mt-1">{{ field_hint('dic') }}</p>
+					</div>
+
+					{# Jméno + E-mail #}
+					<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+						<div>
+							<label class="block text-base font-semibold text-gray-700 mb-1">
+								{{ field_label('contact_name') }}
+								<span class="text-red-500">*</span>
+							</label>
+							<input type="text" name="contact_name" x-model="contact.contact_name" maxlength="150" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base
+																																																																																																																								                                      focus:outline-none focus:ring-2 focus:ring-[#d96e45]" :class="{'border-red-400': step2errors.contact_name}">
+							<p x-show="step2errors.contact_name" x-text="step2errors.contact_name" class="text-sm text-red-500 mt-1"></p>
+						</div>
+						<div>
+							<label class="block text-base font-semibold text-gray-700 mb-1">
+								{{ field_label('email') }}
+								<span class="text-red-500">*</span>
+							</label>
+							<input type="email" name="email" x-model="contact.email" maxlength="150" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base
+																																																																																																																								                                      focus:outline-none focus:ring-2 focus:ring-[#d96e45]" :class="{'border-red-400': step2errors.email}">
+							<p x-show="step2errors.email" x-text="step2errors.email" class="text-sm text-red-500 mt-1"></p>
+						</div>
+					</div>
+
+					{# Telefon + Web #}
+					<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+						<div>
+							<label class="block text-base font-semibold text-gray-700 mb-1">
+								{{ field_label('phone') }}
+								<span class="text-red-500">*</span>
+							</label>
+							<input type="text" name="phone" x-model="contact.phone" maxlength="50" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base
+																																																																																																																								                                      focus:outline-none focus:ring-2 focus:ring-[#d96e45]" :class="{'border-red-400': step2errors.phone}">
+							<p x-show="step2errors.phone" x-text="step2errors.phone" class="text-sm text-red-500 mt-1"></p>
+						</div>
+						<div>
+							<label class="block text-base font-semibold text-gray-700 mb-1">
+								{{ field_label('website') }}
+							</label>
+							<input type="url" name="website" x-model="contact.website" maxlength="255" placeholder="https://" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base
+																																																																																																									                                      focus:outline-none focus:ring-2 focus:ring-[#d96e45]">
+						</div>
+					</div>
+
+					{# Sociální sítě #}
+					<div class="mb-6">
+						<label class="block text-base font-semibold text-gray-700 mb-1">
+							{{ field_label('social_networks') }}
+						</label>
+						<textarea name="social_networks" x-model="contact.social_networks" rows="3" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base
+																																																																																																									                                     focus:outline-none focus:ring-2 focus:ring-[#d96e45]"></textarea>
+						<p class="text-sm text-gray-400 mt-1">{{ field_hint('social_networks') }}</p>
+					</div>
+
+					{# Sortiment #}
+					<div class="mb-2">
+						<label class="block text-base font-semibold text-gray-700 mb-1">
+							{{ field_label('sortiment') }}
+							<span class="text-red-500">*</span>
+						</label>
+						<textarea name="sortiment" x-model="contact.sortiment" rows="5" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base
+																																																																																																									                                     focus:outline-none focus:ring-2 focus:ring-[#d96e45]" :class="{'border-red-400': step2errors.sortiment}"></textarea>
+						<p class="text-sm text-gray-400 mt-1">{{ field_hint('sortiment') }}</p>
+						<p x-show="step2errors.sortiment" x-text="step2errors.sortiment" class="text-sm text-red-500 mt-1"></p>
+					</div>
+
+				</div>
+			</div>
+
+			{# ══════════════════════════════════════════════════
+																																													           KROK 3 — VÝBĚR FESTIVALŮ
+																																													        ══════════════════════════════════════════════════ #}
+			<div x-show="step === 3" x-transition.opacity>
+				<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+
+					<h2 class="text-2xl font-bold text-gray-900 mb-2">
+						{{ field_label('festivals') }}
+					</h2>
+					<p class="text-gray-500 text-base mb-6">{{ field_hint('festivals') }}</p>
+
+
+					{# Seznam festivalů — accordion #}
+					<div class="space-y-3">
+						<template x-for="festival in festivalsConfig" :key="festival.id">
+							<div
+								class="border rounded-xl overflow-hidden transition-all duration-200" :class="isSelected(festival.id)
+																																																																																																																																							                                ? 'border-[#743a25] shadow-sm'
+																																																																																																																																							                                : 'border-gray-200 hover:border-[#e89a7a]'">
+
+								{# Hlavička festivalu — checkbox #}
+								<label class="flex items-center justify-between p-4 cursor-pointer" :class="isSelected(festival.id) ? 'bg-[#fdf5f2]' : 'bg-white hover:bg-gray-50'">
+
+									<div class="flex items-center gap-3">
+										<input type="checkbox" :checked="isSelected(festival.id)" @change="toggleFestival(festival)" class="w-5 h-5 rounded text-[#743a25] focus:ring-[#d96e45] cursor-pointer">
+										<div>
+											<div class="font-semibold text-gray-900 text-base">
+												<span x-text="festival.city"></span>
+												<span class="text-gray-400 mx-1">–</span>
+												<span x-text="festival.name"></span>
+											</div>
+											<div class="text-sm text-gray-500 mt-0.5">
+												<span x-text="formatDateRange(festival.date_from, festival.date_to)"></span>
+												<span class="mx-1">·</span>
+												<span class="uppercase font-medium text-[#743a25]" x-text="festival.type"></span>
+											</div>
+										</div>
+									</div>
+
+									{# Cena festivalu vpravo #}
+									<div class="text-right ml-4">
+										<template x-if="isSelected(festival.id) && selected[festival.id].priceTotal > 0">
+											<span class="font-bold text-[#743a25] text-lg" x-text="formatPrice(selected[festival.id].priceTotal)"></span>
+										</template>
+										<template x-if="!isSelected(festival.id)">
+											<span class="text-gray-300 text-sm">
+												{% if current_locale() == 'cs' %}vybrat{% else %}select
+												{% endif %}
+											</span>
+										</template>
+										<template x-if="isSelected(festival.id) && selected[festival.id].priceTotal === 0">
+											<span class="text-gray-400 text-sm">—</span>
+										</template>
+									</div>
+
+								</label>
+
+								{# Accordion obsah — výběr prostoru a elektřiny #}
+								<div
+									x-show="isSelected(festival.id)" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="border-t border-[#f0e8e4] bg-white px-4 py-5">
+
+									{# ← Upozornění NAHORU před gridy #}
+									<div x-show="isSelected(festival.id) && (!selected[festival.id].space || selected[festival.id].electricity === null)" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 max-h-0" x-transition:enter-end="opacity-100 max-h-20" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 max-h-20" x-transition:leave-end="opacity-0 max-h-0" class="overflow-hidden mb-4 flex items-center gap-2 text-sm text-amber-700
+																																																																																																														            bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+										<span>⚠</span>
+										<span>
+											{% if current_locale() == 'cs' %}
+												Prosím vyberte prostor i elektrické připojení.
+											{% else %}
+												Please select both space and electricity connection.
+											{% endif %}
+										</span>
+									</div>
+
+									<div
+										class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+										{# Výběr prostoru #}
+										<div>
+											<h4 class="font-semibold text-gray-800 text-base mb-3">
+												{% if current_locale() == 'cs' %}Výběr prostoru{% else %}Space selection
+												{% endif %}
+												<span class="text-red-500">*</span>
+											</h4>
+											<div class="space-y-2">
+												<template x-for="space in getSpaces(festival.type)" :key="space.id">
+													<label class="flex items-center justify-between p-3 rounded-lg border
+																																																																						                                                                 cursor-pointer transition-all" :class="isSelected(festival.id) && selected[festival.id].space === space.id
+																																																																											                                                                                     ? 'border-[#743a25] bg-[#fdf5f2]'
+																																																																											                                                                                     : 'border-gray-200 hover:border-[#e89a7a]'">
+														<div class="flex items-center gap-2">
+															<input type="radio" :name="'space_' + festival.id" :value="space.id" :checked="isSelected(festival.id) && selected[festival.id].space === space.id" @change="selectSpace(festival.id, space.id, space.price)" class="text-[#743a25] focus:ring-[#d96e45]">
+															<span class="text-base text-gray-700" x-text="space.label"></span>
+														</div>
+														<span class="font-semibold text-[#743a25] text-base" x-text="space.price > 0 ? space.price.toLocaleString('cs-CZ') + ' Kč' : 'Zdarma'"></span>
+													</label>
+												</template>
+											</div>
+										</div>
+
+										{# Výběr elektřiny #}
+										<div>
+											<h4 class="font-semibold text-gray-800 text-base mb-3">
+												{% if current_locale() == 'cs' %}Elektrické připojení{% else %}Electricity
+												{% endif %}
+												<span class="text-red-500">*</span>
+											</h4>
+											<div class="space-y-2">
+												<template x-for="elec in getElectricity(festival.type)" :key="elec.id">
+													<label class="flex items-center justify-between p-3 rounded-lg border
+																																																																																																																																																																																																																		                                                              cursor-pointer transition-all" :class="isSelected(festival.id) && selected[festival.id].electricity === elec.id
+																																																																																																																																																																																																																																	                                                           ? 'border-[#743a25] bg-[#fdf5f2]'
+																																																																																																																																																																																																																																	                                                           : 'border-gray-200 hover:border-[#e89a7a]'">
+														<div class="flex items-center gap-2">
+															<input type="radio" :name="'elec_' + festival.id" :value="elec.id" :checked="isSelected(festival.id) && selected[festival.id].electricity === elec.id" @change="selectElectricity(festival.id, elec.id, elec.price)" class="text-[#743a25] focus:ring-[#d96e45]">
+															<span class="text-sm text-gray-700" x-text="elec.label"></span>
+														</div>
+														<span class="font-semibold text-base" :class="elec.price > 0 ? 'text-[#743a25]' : 'text-emerald-600'" x-text="elec.price > 0 ? elec.price.toLocaleString('cs-CZ') + ' Kč' : 'Zdarma'"></span>
+													</label>
+												</template>
+											</div>
+										</div>
+
+									</div>
+
+								</div>
+							</div>
+						</template>
+					</div>
+
+					{# Celková cena #}
+					<div class="mt-6 border-t-2 border-[#743a25] pt-4">
+						<div class="flex justify-between items-center">
+							<span class="text-base font-semibold text-gray-700">
+								{% if current_locale() == 'cs' %}Celková cena{% else %}Total price
+								{% endif %}
+							</span>
+							<span class="text-2xl font-black text-[#743a25]" x-text="totalPrice > 0 ? totalPrice.toLocaleString('cs-CZ') + ' Kč' : '—'"></span>
+						</div>
+						<p class="text-sm text-gray-400 mt-1">
+							{% if current_locale() == 'cs' %}
+								Ceny jsou uvedeny bez DPH.
+							{% else %}
+								Prices are listed without VAT.
+							{% endif %}
+						</p>
+					</div>
+
+				</div>
+			</div>
+
+			{# ══════════════════════════════════════════════════
+															                    KROK 4 — SOUHRN
+															               ══════════════════════════════════════════════════ #}
+			<div x-show="step === 4" x-transition.opacity>
+				<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+
+					<h2 class="text-2xl font-bold text-gray-900 mb-2">
+						{% if current_locale() == 'cs' %}Souhrn objednávky{% else %}Order Summary
+						{% endif %}
+					</h2>
+					<p class="text-gray-500 text-base mb-8">
+						{% if current_locale() == 'cs' %}
+							Zkontrolujte prosím vaše údaje před závazným objednáním.
+						{% else %}
+							Please review your details before placing the order.
+						{% endif %}
+					</p>
+
+					{# Kontaktní údaje #}
+					<div class="mb-8">
+						<h3 class="text-base font-bold text-[#743a25] uppercase tracking-wide mb-4">
+							{% if current_locale() == 'cs' %}Kontaktní údaje{% else %}Contact details
+							{% endif %}
+						</h3>
+						<div class="bg-gray-50 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-base">
+							<div>
+								<span class="text-gray-400 text-sm">{{ field_label('company') }}</span>
+								<div class="font-semibold text-gray-900" x-text="contact.company || '—'"></div>
+							</div>
+							<div>
+								<span class="text-gray-400 text-sm">{{ field_label('ico') }}
+									/
+									{{ field_label('dic') }}</span>
+								<div class="font-semibold text-gray-900">
+									<span x-text="contact.ico || '—'"></span>
+									<span x-show="contact.dic">
+										/
+										<span x-text="contact.dic"></span>
+									</span>
+								</div>
+							</div>
+							<div>
+								<span class="text-gray-400 text-sm">{{ field_label('address') }}</span>
+								<div class="font-semibold text-gray-900" x-text="contact.address || '—'"></div>
+							</div>
+							<div>
+								<span class="text-gray-400 text-sm">{{ field_label('contact_name') }}</span>
+								<div class="font-semibold text-gray-900" x-text="contact.contact_name || '—'"></div>
+							</div>
+							<div>
+								<span class="text-gray-400 text-sm">{{ field_label('email') }}</span>
+								<div class="font-semibold text-gray-900" x-text="contact.email || '—'"></div>
+							</div>
+							<div>
+								<span class="text-gray-400 text-sm">{{ field_label('phone') }}</span>
+								<div class="font-semibold text-gray-900" x-text="contact.phone || '—'"></div>
+							</div>
+						</div>
+					</div>
+
+					{# Vybrané festivaly #}
+					<div class="mb-8">
+						<h3 class="text-base font-bold text-[#743a25] uppercase tracking-wide mb-4">
+							{% if current_locale() == 'cs' %}Vybrané festivaly{% else %}Selected festivals
+							{% endif %}
+						</h3>
+
+						<div class="space-y-3">
+							<template x-for="(data, id) in selected" :key="id">
+								<div class="border border-gray-200 rounded-xl overflow-hidden">
+									<div class="flex items-center justify-between p-4 bg-gray-50">
+										<div>
+											<div class="font-semibold text-gray-900 text-base">
+												<span x-text="data.festival.city"></span>
+												<span class="text-gray-400 mx-1">–</span>
+												<span x-text="data.festival.name"></span>
+											</div>
+											<div class="text-sm text-gray-500">
+												<span x-text="formatDateRange(data.festival.date_from, data.festival.date_to)"></span>
+												<span class="mx-1">·</span>
+												<span class="uppercase font-medium text-[#743a25]" x-text="data.festival.type"></span>
+											</div>
+										</div>
+										<span class="font-bold text-[#743a25] text-lg" x-text="formatPrice(data.priceTotal)"></span>
+									</div>
+									<div class="px-4 py-3 grid grid-cols-2 gap-2 text-sm">
+										<div>
+											<span class="text-gray-400">
+												{% if current_locale() == 'cs' %}Prostor:{% else %}Space:
+												{% endif %}
+											</span>
+											<span class="font-medium text-gray-700 ml-1" x-text="getSpaceLabel(data.festival.type, data.space)"></span>
+										</div>
+										<div>
+											<span class="text-gray-400">
+												{% if current_locale() == 'cs' %}Elektřina:{% else %}Electricity:
+												{% endif %}
+											</span>
+											<span class="font-medium text-gray-700 ml-1" x-text="getElecLabel(data.festival.type, data.electricity)"></span>
+										</div>
+									</div>
+								</div>
+							</template>
+						</div>
+
+						{# Celková cena v souhrnu #}
+						<div class="mt-4 flex justify-between items-center p-4
+																																																																																																																								                                bg-[#743a25] text-white rounded-xl">
+							<span class="font-bold text-lg">
+								{% if current_locale() == 'cs' %}Celková cena{% else %}Total price
+								{% endif %}
+							</span>
+							<span class="font-black text-2xl" x-text="totalPrice.toLocaleString('cs-CZ') + ' Kč'"></span>
+						</div>
+						<p class="text-sm text-gray-400 mt-2">
+							{% if current_locale() == 'cs' %}Ceny jsou uvedeny bez DPH.{% else %}Prices are listed without VAT.
+							{% endif %}
+						</p>
+					</div>
+
+					{# E-mail info #}
+					<div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-8 flex gap-3">
+						<span class="text-xl">📧</span>
+						<p class="text-base text-blue-800">
+							{% if current_locale() == 'cs' %}
+								Po odeslání objednávky obdržíte potvrzení na e-mail
+								<strong x-text="contact.email"></strong>.
+							{% else %}
+								After submitting the order you will receive a confirmation to
+								<strong x-text="contact.email"></strong>.
+							{% endif %}
+						</p>
+					</div>
+
+				</div>
+			</div>
+
+			{# ══════════════════════════════════════════════════
+			   NAVIGAČNÍ TLAČÍTKA
+			══════════════════════════════════════════════════ #}
+
+			{# Hláška nad tlačítky — všechny kroky #}
+			<div x-show="(step === 1 && step1errorShown)
+                    || (step === 2 && Object.keys(step2errors).length > 0)
+                    || (step === 3 && step3error)" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 max-h-0" x-transition:enter-end="opacity-100 max-h-24" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 max-h-24" x-transition:leave-end="opacity-0 max-h-0" class="overflow-hidden mt-4 flex items-center gap-2 text-sm
+					            text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+				<span>⚠</span>
+				<span>
+					{# Krok 3 má specifičtější hlášku #}
+					<span x-show="step === 3">
+						{% if current_locale() == 'cs' %}
+							Vyberte alespoň jeden festival a u každého zvolte prostor a elektrické připojení.
+						{% else %}
+							Select at least one festival and choose a space and electricity for each.
+						{% endif %}
+					</span>
+					{# Kroky 1 a 2 — obecná hláška #}
+					<span x-show="step !== 3">
+						{% if current_locale() == 'cs' %}
+							Vyplňte prosím všechna povinná pole výše.
+						{% else %}
+							Please fill in all required fields above.
+						{% endif %}
+					</span>
+				</span>
+			</div>
+
+			{# Tlačítka #}
+			<div
+				class="mt-4 flex gap-3">
+
+				{# Zpět — od kroku 2 #}
+				<button type="button" x-show="step > 1" @click="prevStep()" class="flex-1 border-2 border-[#743a25] text-[#743a25] hover:bg-[#fdf5f2]
+						                   font-semibold py-4 px-6 rounded-xl transition-colors text-base">
+					←
+					{% if current_locale() == 'cs' %}Zpět{% else %}Back
+					{% endif %}
+				</button>
+
+				{# Pokračovat — kroky 1–3 #}
+				<button type="button" x-show="step < 4" @click="nextStep()" :class="(step1hasErrors || step2hasErrors || step3hasErrors) ? 'shake' : ''" class="flex-1 bg-[#743a25] hover:bg-[#5e2e1c] text-white
+						                   font-semibold py-4 px-6 rounded-xl transition-colors text-base shadow-sm">
+					{% if current_locale() == 'cs' %}Pokračovat{% else %}Continue
+					{% endif %}
+					→
+				</button>
+
+				{# Závazně objednat — krok 4 #}
+				<button type="submit" x-show="step === 4" class="flex-1 bg-[#743a25] hover:bg-[#5e2e1c] text-white
+						                   font-bold py-4 px-6 rounded-xl transition-colors text-base shadow-sm">
+					🍫
+					{% if current_locale() == 'cs' %}Závazně objednat{% else %}Place Order
+					{% endif %}
+				</button>
+
+			</div>
+
+			{# Povinná pole #}
+			<p x-show="step > 1 && step < 4" class="text-sm text-gray-400 text-center mt-4">
 				{% if current_locale() == 'cs' %}
 					Pole označená
 					<span class="text-red-500">*</span>
@@ -270,67 +679,329 @@
 		</form>
 	</div>
 
-	{# ── Alpine.js komponenta ── #}
+	{# ══════════════════════════════════════════════════
+					          ALPINE.JS — hlavní komponenta
+					     ══════════════════════════════════════════════════ #}
 	 <script>
-		function registrationForm() {
-		    return {
-		        form: {
-		            ico:     '{{ old.ico ?? '' }}',
-		            company: '{{ old.company ?? '' }}',
-		            address: '{{ old.address ?? '' }}',
-		        },
-		        aresLoading: false,
-		        aresError:   false,
-		
-		        async loadAres() {
-		            if (this.form.ico.length < 6) return;
-		
-		            this.aresLoading = true;
-		            this.aresError   = false;
-		
-		            try {
-		                const res  = await fetch(`/vystavovatele/api/ares/${this.form.ico}`);
-		                const data = await res.json();
-		
-		                if (data.success) {
-		                    this.form.company = data.company ?? '';
-		                    this.form.address = data.address ?? '';
-		                } else {
-		                    this.aresError = true;
-		                }
-		            } catch (e) {
-		                this.aresError = true;
-		            } finally {
-		                this.aresLoading = false;
-		            }
-		        },
-		
-		        async handleSubmit(e) {
-		            {% if recaptcha_enabled %}
-		            // Získáme reCAPTCHA token před odesláním
-		            e.preventDefault();
-		
-		            try {
-		                const token = await grecaptcha.execute(
-		                    '{{ recaptcha_site_key }}',
-		                    { action: 'register' }
-		                );
-		                document.getElementById('recaptcha_token').value = token;
-		            } catch (err) {
-		                console.error('reCAPTCHA error:', err);
-		            }
-		
-		            e.target.submit();
-		            {% endif %}
-		        }
-		    }
-		}
-		</script>
+					function registrationForm(festivalsConfig, pricingConfig, oldFestivals, initialStep) {
+					    return {
+					          step: initialStep || 1,
+					          submitted: false,
+					          step3error: false,
+		                         step1hasErrors: false, 
+		                         step2hasErrors: false,
+		                         step3hasErrors: false,
+                                   step1errorShown: false,
 
-	{% if app_env == 'production' %}
-		 <script src="https://www.google.com/recaptcha/api.js
-								                 ?render={{ recaptcha_site_key }}"></script>
-	{% endif %}
+                                   init() {
+                                        this.$watch('termsAccepted', function(val) {
+                                             if (val) this.step1errorShown = false;
+                                        }.bind(this));
+                                   },
+					
+					          // Krok 1
+					          termsAccepted: false,
+					
+					          // Krok 2 — kontaktní pole
+					          contact: {
+					               ico:             '{{ old.ico             ?? '' }}',
+					               company:         '{{ old.company         ?? '' }}',
+					               address:         '{{ old.address         ?? '' }}',
+					               dic:             '{{ old.dic             ?? '' }}',
+					               contact_name:    '{{ old.contact_name    ?? '' }}',
+					               email:           '{{ old.email           ?? '' }}',
+					               phone:           '{{ old.phone           ?? '' }}',
+					               website:         '{{ old.website         ?? '' }}',
+					               social_networks: '{{ old.social_networks ?? '' }}',
+					               sortiment:       '{{ old.sortiment       ?? '' }}',
+					          },
+					
+					          // Krok 2 — validace
+					          step2errors: {},
+					
+					          // ARES
+					          aresLoading: false,
+					          aresError:   false,
+					
+					          // Krok 3 — festivaly
+					          festivalsConfig: festivalsConfig,
+					          pricingConfig:   pricingConfig,
+					     
+					          // Obnov vybrané festivaly pokud přišlo z chybného odeslání
+					          selected: (function() {
+					               if (!oldFestivals || Object.keys(oldFestivals).length === 0) return {};
+					     
+					               const result = {};
+					               const festMap = {};
+					               festivalsConfig.forEach(function(f) { festMap[f.id] = f; });
+					     
+					               Object.keys(oldFestivals).forEach(function(id) {
+					                    const d = oldFestivals[id];
+					                    const festival = festMap[parseInt(id)];
+					                    if (!festival) return;
+					     
+					                    result[id] = {
+					                         festival:    festival,
+					                         space:       d.space       || null,
+					                         electricity: d.electricity || null,
+					                         priceSpace:  d.priceSpace  || 0,
+					                         priceElec:   d.priceElec   || 0,
+					                         priceTotal:  d.priceTotal  || 0,
+					                    };
+					               });
+					               return result;
+					          })(),
+					     
+					          totalPrice: (function() {
+					               if (!oldFestivals) return 0;
+					               return Object.values(oldFestivals).reduce(function(sum, f) {
+					                    return sum + (f.priceTotal || 0);
+					               }, 0);
+					          })(),
+					
+					          // ── Metody ───────────────────────────────────────────────────────
+					
+					          isSelected(id) {
+					               return this.selected[id] !== undefined;
+					          },
+					
+					          goToStep(index) {
+					          const target = index + 1;
+					          // Nelze jít na krok který ještě nebyl dosažen
+					          if (target >= this.step) return;
+					          // Nelze se vrátit po odeslání (krok 4 dokončen)
+					          if (this.submitted) return;
+					          this.step = target;
+					          window.scrollTo({ top: 0, behavior: 'smooth' });
+					          },
+					
+					          toggleFestival(festival) {
+					               if (this.isSelected(festival.id)) {
+					                    const newSelected = {};
+					                    Object.keys(this.selected).forEach(k => {
+					                    if (parseInt(k) !== festival.id) {
+					                         newSelected[k] = this.selected[k];
+					                    }
+					                    });
+					                    this.selected = newSelected;
+					               } else {
+					                    this.selected = Object.assign({}, this.selected, {
+					                    [festival.id]: {
+					                         festival:    festival,
+					                         space:       null,
+					                         electricity: null,
+					                         priceSpace:  0,
+					                         priceElec:   0,
+					                         priceTotal:  0,
+					                    }
+					                    });
+					               }
+					               this.calculateTotal();
+					               this.step3error = false;
+					          },
+					
+					          getSpaces(type) {
+					               return (this.pricingConfig.spaces || {})[type] || [];
+					          },
+					
+					          getElectricity(type) {
+					               return (this.pricingConfig.electricity || {})[type] || [];
+					          },
+					
+					          selectSpace(festivalId, spaceId, price) {
+					               if (!this.selected[festivalId]) return;
+					               this.selected[festivalId] = Object.assign({}, this.selected[festivalId], {
+					                    space:      spaceId,
+					                    priceSpace: price,
+					                    priceTotal: price + this.selected[festivalId].priceElec,
+					               });
+					               this.calculateTotal();
+					          },
+					
+					          selectElectricity(festivalId, elecId, price) {
+					               if (!this.selected[festivalId]) return;
+					               this.selected[festivalId] = Object.assign({}, this.selected[festivalId], {
+					                    electricity: elecId,
+					                    priceElec:   price,
+					                    priceTotal:  this.selected[festivalId].priceSpace + price,
+					               });
+					               this.calculateTotal();
+					          },
+					
+					          calculateTotal() {
+					               this.totalPrice = Object.values(this.selected).reduce(
+					                    function(sum, f) { return sum + f.priceTotal; }, 0
+					               );
+					          },
+					
+					          formatPrice(price) {
+					               if (price === 0) return '—';
+					               return price.toLocaleString('cs-CZ') + ' Kč';
+					          },
+					
+					          formatDateRange(from, to) {
+					               const f = new Date(from);
+					               const t = new Date(to);
+					               const day   = function(d) { return d.getDate(); };
+					               const month = function(d) { return d.getMonth() + 1; };
+					               const year  = function(d) { return d.getFullYear(); };
+					
+					               if (month(f) === month(t)) {
+					                    return day(f) + '–' + day(t) + '. ' + month(t) + '. ' + year(t);
+					               }
+					               return day(f) + '. ' + month(f) + '. – ' + day(t) + '. ' + month(t) + '. ' + year(t);
+					          },
+					
+					          getSpaceLabel(type, spaceId) {
+					               const spaces = this.getSpaces(type);
+					               const found  = spaces.find(function(s) { return s.id === spaceId; });
+					               return found ? found.label : spaceId;
+					          },
+					
+					          getElecLabel(type, elecId) {
+					               const elecs = this.getElectricity(type);
+					               const found = elecs.find(function(e) { return e.id === elecId; });
+					               return found ? found.label : elecId;
+					          },
+					
+					          // ── Validace ─────────────────────────────────────────────────────
+					
+					          validateStep2() {
+					               const e = {};
+					               const locale = '{{ current_locale() }}';
+					
+                       
+                                        if (!this.contact.ico.trim())
+                                        e.ico = locale === 'cs' ? 'IČ je povinné' : 'Company ID is required';
+                                        else if (!/^\d{8}$/.test(this.contact.ico.trim().replace(/\s/g, '')))
+                                        e.ico = locale === 'cs' ? 'IČ musí mít 8 číslic' : 'Company ID must be 8 digits';
+					               if (!this.contact.company.trim())
+					                    e.company = locale === 'cs' ? 'Název firmy je povinný' : 'Company name is required';
+					               if (!this.contact.address.trim())
+					                    e.address = locale === 'cs' ? 'Adresa je povinná' : 'Address is required';
+					               if (!this.contact.contact_name.trim())
+					                    e.contact_name = locale === 'cs' ? 'Jméno kontaktní osoby je povinné' : 'Contact name is required';
+					               const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+					               if (!this.contact.email.trim() || !emailRegex.test(this.contact.email.trim()))
+					               e.email = locale === 'cs' ? 'Zadejte platný e-mail' : 'Enter a valid e-mail';
+					               if (!this.contact.phone.trim())
+					                    e.phone = locale === 'cs' ? 'Telefon je povinný' : 'Phone is required';
+					               if (!this.contact.sortiment.trim())
+					                    e.sortiment = locale === 'cs' ? 'Popis sortimentu je povinný' : 'Product description is required';
+					
+					               this.step2errors = e;
+					               return Object.keys(e).length === 0;
+					          },
+					
+					          validateStep3() {
+					               if (Object.keys(this.selected).length === 0) return false;
+					               return Object.values(this.selected).every(function(f) {
+					                    return f.space !== null && f.electricity !== null;
+					               });
+					          },
+					
+					          // ── Navigace ─────────────────────────────────────────────────────
+					
+					          nextStep() {
+		                              if (this.step === 1 && !this.termsAccepted) {
+                                             this.step1hasErrors  = true;
+                                             this.step1errorShown = true;  // ← hláška zůstane
+                                             setTimeout(() => { this.step1hasErrors = false; }, 600); // ← jen shake se resetuje
+                                             return;
+                                        }
+
+		                              
+		                              if (this.step === 2 && !this.validateStep2()) {
+		                                        this.step2hasErrors = true;
+		                                        
+		                                        // Reset shake po animaci
+		                                        setTimeout(() => { this.step2hasErrors = false; }, 600);
+		                                        
+		                                        this.$nextTick(function() {
+		                                             const firstError = document.querySelector('.border-red-400');
+		                                             if (firstError) {
+		                                                  firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		                                             }
+		                                        });
+		                                        return;
+		                                   }
+		                              
+		                              if (this.step === 3) {
+		                                        if (!this.validateStep3()) {
+		                                             this.step3error    = true;
+		                                             this.step3hasErrors = true;
+		                                        
+		                                             // Reset shake
+		                                             setTimeout(() => { this.step3hasErrors = false; }, 600);
+		                                        
+		                                             // Scroll na chybovou hlášku nad tlačítky
+		                                             this.$nextTick(function() {
+		                                                  const err = document.querySelector('[x-show="step === 3 && step3error"]');
+		                                                  if (err) {
+		                                                       err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		                                                  }
+		                                             });
+		                                             return;
+		                                        }
+		                                        this.step3error = false;
+		                                   }
+		                              
+		                              this.step++;
+		                              window.scrollTo({ top: 0, behavior: 'smooth' });
+		                         },
+					
+					          prevStep() {
+					               if (this.step > 1) {
+					                    this.step--;
+					                    window.scrollTo({ top: 0, behavior: 'smooth' });
+					               }
+					          },
+					
+					          // ── ARES ─────────────────────────────────────────────────────────
+					
+					          async loadAres() {
+					               if (this.contact.ico.length < 6) return;
+					               this.aresLoading = true;
+					               this.aresError   = false;
+					
+					               try {
+					                    const res  = await fetch('{{ base_path }}/api/ares/' + this.contact.ico);
+					                    const data = await res.json();
+					
+					                    if (data.success) {
+					                    this.contact.company = data.company || '';
+					                    this.contact.address = data.address || '';
+					                    if (data.dic) this.contact.dic = data.dic;
+					                    } else {
+					                    this.aresError = true;
+					                    }
+					               } catch(e) {
+					                    this.aresError = true;
+					               } finally {
+					                    this.aresLoading = false;
+					               }
+					          },
+					
+					          // ── Submit ───────────────────────────────────────────────────────
+					
+					          async handleSubmit(e) {
+					               this.submitted = true;
+					               {% if recaptcha_enabled %}
+					               e.preventDefault();
+					               try {
+					                    const token = await grecaptcha.execute(
+					                    '{{ recaptcha_site_key }}',
+					                    { action: 'register' }
+					                    );
+					                    document.getElementById('recaptcha_token').value = token;
+					               } catch(err) {
+					                    console.error('reCAPTCHA error:', err);
+					               }
+					               e.target.submit();
+					               {% endif %}
+					          }
+					     }
+					}
+					</script>
 
 {% endblock %}
-
