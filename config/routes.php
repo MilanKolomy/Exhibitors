@@ -23,6 +23,7 @@ return function (App $app): void {
         $group->get('/registrace',  [RegistrationController::class, 'showForm']);
         $group->post('/registrace', [RegistrationController::class, 'handleForm']);
         $group->get('/dekujeme',    [RegistrationController::class, 'success']);
+        $group->get('/podminky', [RegistrationController::class, 'terms']);
     });
 
     // --- Veřejná část — EN ---
@@ -30,6 +31,7 @@ return function (App $app): void {
         $group->get('/registration',  [RegistrationController::class, 'showForm']);
         $group->post('/registration', [RegistrationController::class, 'handleForm']);
         $group->get('/thank-you',     [RegistrationController::class, 'success']);
+        $group->get('/terms', [RegistrationController::class, 'terms']);
     });
 
     // --- AJAX endpoint pro ARES ---

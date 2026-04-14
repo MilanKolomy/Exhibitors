@@ -59,6 +59,18 @@ class RegistrationController
           return $response;
      }
 
+     public function terms(Request $request, Response $response): Response
+     {
+          $locale = $_SESSION['locale'] ?? 'cs';
+
+          $html = $this->twig->render('registration/terms.twig', [
+               'locale' => $locale,
+          ]);
+
+          $response->getBody()->write($html);
+          return $response;
+     }
+
      public function handleForm(Request $request, Response $response): Response
      {
           $locale = $_SESSION['locale'] ?? 'cs';

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="{{ current_locale() }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% if current_locale() == 'cs' %}Důležité informace k registraci
+        {% else %}Important Registration Information{% endif %}
+        — {{ t('common.app_name') }}
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html { font-size: 17px; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <div class="max-w-3xl mx-auto px-4 py-10">
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+
+            <h1 class="text-2xl font-bold text-gray-900 mb-6">
+                {% if current_locale() == 'cs' %}
+                    Důležité informace k registraci
+                {% else %}
+                    Important Registration Information
+                {% endif %}
+            </h1>
+
+            <div class="prose text-gray-700 space-y-4 text-base leading-relaxed">
+                {% if current_locale() == 'cs' %}
+                    {# === CZECH CONTENT === #}
+                    <h2 class="text-lg font-semibold text-[#743a25]">1. Účast na festivalu</h2>
+                    <p>
+                        Doplňte vlastní text podmínek...
+                    </p>
+
+                    <h2 class="text-lg font-semibold text-[#743a25]">2. Platební podmínky</h2>
+                    <p>
+                        Doplňte vlastní text podmínek...
+                    </p>
+
+                    <h2 class="text-lg font-semibold text-[#743a25]">3. Storno podmínky</h2>
+                    <p>
+                        Doplňte vlastní text podmínek...
+                    </p>
+
+                {% else %}
+                    {# === ENGLISH CONTENT === #}
+                    <h2 class="text-lg font-semibold text-[#743a25]">1. Festival Participation</h2>
+                    <p>
+                        Add your own terms content...
+                    </p>
+
+                    <h2 class="text-lg font-semibold text-[#743a25]">2. Payment Terms</h2>
+                    <p>
+                        Add your own terms content...
+                    </p>
+
+                    <h2 class="text-lg font-semibold text-[#743a25]">3. Cancellation Policy</h2>
+                    <p>
+                        Add your own terms content...
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-gray-100">
+                <button onclick="window.close()"
+                        class="text-sm text-[#743a25] hover:underline">
+                    ← {% if current_locale() == 'cs' %}Zavřít{% else %}Close{% endif %}
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
