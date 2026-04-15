@@ -20,13 +20,13 @@ class CaptchaService
 
     public function isEnabled(): bool
     {
-        return getenv('APP_ENV') === 'production'
-            && !empty(getenv('RECAPTCHA_SECRET_KEY'));
+        return env('APP_ENV') === 'production'
+            && !empty(env('RECAPTCHA_SECRET_KEY'));
     }
 
     public function getSiteKey(): string
     {
-        return getenv('RECAPTCHA_SITE_KEY') ?: '';
+        return env('RECAPTCHA_SITE_KEY') ?: '';
     }
 
     public function verify(string $token): bool
@@ -43,7 +43,7 @@ class CaptchaService
         try {
             $response = $this->client->post(self::VERIFY_URL, [
                 'form_params' => [
-                    'secret'   => getenv('RECAPTCHA_SECRET_KEY'),
+                    'secret'   => env('RECAPTCHA_SECRET_KEY'),
                     'response' => $token,
                     'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
                 ],

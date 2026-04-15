@@ -17,7 +17,7 @@ class AresService
           $this->client = new Client([
                'timeout'         => 5,
                'connect_timeout' => 5,
-               'verify'          => getenv('APP_ENV') === 'production', // ← true na produkci, false lokálně
+               'verify'          => env('APP_ENV') === 'production', // ← true na produkci, false lokálně
           ]);
      }
 

@@ -36,7 +36,7 @@ class RegistrationController
 
      private function getLangSwitchUrl(string $locale, string $currentPath): string
      {
-          $basePath = getenv('APP_BASE_PATH') ?: '';
+          $basePath = env('APP_BASE_PATH') ?: '';
 
           if ($locale === 'cs') {
                return $basePath . '/en/registration';

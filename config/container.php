@@ -21,10 +21,10 @@ return [
      PDO::class => function () {
           $dsn = sprintf(
                'mysql:host=%s;dbname=%s;charset=utf8mb4',
-               getenv('DB_HOST'),
-               getenv('DB_NAME')
+               env('DB_HOST'),
+               env('DB_NAME')
           );
-          $pdo = new PDO($dsn, getenv('DB_USER'), getenv('DB_PASS'), [
+          $pdo = new PDO($dsn, env('DB_USER'), env('DB_PASS'), [
                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                PDO::ATTR_EMULATE_PREPARES   => false,
@@ -36,7 +36,7 @@ return [
      Environment::class => function (ContainerInterface $c) {
           $loader = new FilesystemLoader(__DIR__ . '/../templates');
           $twig   = new Environment($loader, [
-               'cache'       => getenv('APP_ENV') === 'production'
+               'cache'       => env('APP_ENV') === 'production'
                     ? __DIR__ . '/../var/cache/twig'
                     : false,
                'auto_reload' => true,
@@ -44,7 +44,7 @@ return [
           
 
           // Globální proměnné dostupné ve všech šablonách
-          $twig->addGlobal('base_path', rtrim(getenv('APP_BASE_PATH') ?: '', '/'));
+          $twig->addGlobal('base_path', rtrim(env('APP_BASE_PATH') ?: '', '/'));
           $twig->addGlobal('app_name', 'Registrace vystavovatelů');
           $twig->addFunction(new \Twig\TwigFunction('current_locale', function () {
                return $_SESSION['locale'] ?? 'cs';
@@ -72,7 +72,7 @@ return [
           $captcha = new \App\Services\CaptchaService();
           $twig->addGlobal('recaptcha_enabled',  $captcha->isEnabled());
           $twig->addGlobal('recaptcha_site_key', $captcha->getSiteKey());
-          $twig->addGlobal('app_env', getenv('APP_ENV') ?: 'development');
+          $twig->addGlobal('app_env', env('APP_ENV') ?: 'development');
 
           return $twig;
      },

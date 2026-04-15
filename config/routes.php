@@ -12,11 +12,11 @@ use App\Middleware\AdminAuthMiddleware;
 return function (App $app): void {
 
     // --- Přesměrování z / na výchozí jazyk ---
-    $app->get('/', function ($request, $response) {
-        return $response
-          ->withHeader('Location', '/Exhibitors/cs/registrace')
+     $app->get('/', function ($request, $response) {
+     return $response
+          ->withHeader('Location', basePath('cs/registrace'))
           ->withStatus(302);
-    });
+     }); 
 
     // --- Veřejná část — CS ---
     $app->group('/cs', function (RouteCollectorProxy $group) {
@@ -49,6 +49,7 @@ return function (App $app): void {
         $group->group('', function (RouteCollectorProxy $protected) {
             $protected->get( '/',       [DashboardController::class, 'index']);
             $protected->get( '/export', [DashboardController::class, 'export']);
+            $protected->get('/export-festivals', [DashboardController::class, 'exportFestivals']);
         })->add(AdminAuthMiddleware::class);
     });
 };

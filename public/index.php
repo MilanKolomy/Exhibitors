@@ -21,14 +21,15 @@ AppFactory::setContainer($container);
 $app = AppFactory::create();
 
 // Lokální vývoj v subdirectory
-$basePath = getenv('APP_BASE_PATH') ?: '';
+$basePath = env('APP_BASE_PATH') ?: '';
+$basePath = rtrim($basePath, '/');
 if ($basePath) {
     $app->setBasePath($basePath);
 }
 
 $app->addRoutingMiddleware();
 $errorMiddleware = $app->addErrorMiddleware(
-     (bool) getenv('APP_DEBUG'),
+     (bool) env('APP_DEBUG'),
      true,
      true
 );

@@ -48,18 +48,18 @@
 		</style>
 	</head>
 	<body
-		class="bg-[#f9e4db] min-h-screen">
+		class="bg-[#f9e4db] min-h-screen"> 
 
 		{# Navigace #}
-		<nav>
+		<nav class="bg-white shadow-md">
 			<div class="max-w-3xl mx-auto px-4 py-3">
 				<div
 					class="grid grid-cols-3 items-center">
 
 					{# Vlevo — logo #}
 					<div class="flex items-center">
-						<a href="/Exhibitors/{{ current_locale() == 'cs' ? 'cs/registrace' : 'en/registration' }}">
-							<img src="/Exhibitors/assets/img/logo.png" alt="Logo" class="h-10 w-auto">
+						<a href="{{ base_path }}/{{ current_locale() == 'cs' ? 'cs/registrace' : 'en/registration' }}">
+							<img src="{{ base_path }}/assets/img/logo.png" alt="Logo" class="h-10 w-auto">
 						</a>
 					</div>
 
@@ -72,7 +72,7 @@
 
 					{# Vpravo — přepínač jazyka #}
 					<div class="flex justify-end">
-						<a href="{{ lang_switch_url is defined ? lang_switch_url : (current_locale() == 'cs' ? '/Exhibitors/en/registration' : '/Exhibitors/cs/registrace') }}" class="text-base text-[#743a25] hover:text-[#4a2416] font-medium">
+						<a href="{{ lang_switch_url is defined ? lang_switch_url : (current_locale() == 'cs' ? '{{ base_path }}/en/registration' : '{{ base_path }}/cs/registrace') }}" class="text-base text-[#743a25] hover:text-[#4a2416] font-medium">
 							🌐
 							{{ current_locale() == 'cs' ? 'EN' : 'CS' }}
 						</a>

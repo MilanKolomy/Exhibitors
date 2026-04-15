@@ -1,135 +1,164 @@
 ﻿{% extends 'layouts/admin.twig' %}
 
-{% block title %}{{ t('admin.dashboard_title') }}{% endblock %}
+{% block title %}
+	{{ t('admin.dashboard_title') }}
+{% endblock %}
 
 {% block content %}
 
-{# ── Hlavička + export ── #}
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-    <div>
-        <h1 class="text-2xl font-bold text-brand-900">
-            {{ t('admin.dashboard_title') }}
-        </h1>
-        <p class="text-sm text-brand-500 mt-1">
-            {{ t('admin.total') }}: <strong>{{ total }}</strong>
-        </p>
-    </div>
+	{# ── Hlavička + export ── #}
+	<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+		<div>
+			<h1 class="text-2xl font-bold text-brand-900">
+				{{ t('admin.dashboard_title') }}
+			</h1>
+			<p class="text-sm text-brand-500 mt-1">
+				{{ t('admin.total') }}:
+				<strong>{{ total }}</strong>
+			</p>
+		</div>
 
-    {# Export — respektuje aktuální filtr #}
-    <a href="{{ base_path }}/admin/export{% if selected_festival %}?festival={{ selected_festival }}{% endif %}"
-       class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700
-              text-white text-sm font-semibold px-4 py-2.5 rounded-xl
-              transition-colors shadow-sm">
-        📥 {{ t('admin.export_btn') }}
-    </a>
-</div>
+		<div>
 
-{# ── Filtr dle festivalu ── #}
-<div class="bg-white rounded-xl border border-brand-200 p-4 mb-6">
-    <form method="GET" action="{{ base_path }}/admin/"
-          class="flex flex-col sm:flex-row gap-3 items-end">
-        <div class="flex-1">
-            <label class="block text-xs font-semibold text-[#743a25] mb-1">
-                {{ t('admin.filter_festival') }}
-            </label>
-            <select name="festival"
-                    class="w-full rounded-lg border border-brand-300 px-3 py-2
-                           text-sm focus:outline-none focus:ring-2 focus:ring-[#d96e45]">
-                <option value="">{{ t('admin.filter_all') }}</option>
-                {% for festival in festivals %}
-                <option value="{{ festival.id }}"
-                    {% if selected_festival == festival.id %}selected{% endif %}>
-                    {{ festival.name }} — {{ festival.city }}
-                    ({{ festival.date|date('d. m. Y') }})
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-        <button type="submit"
-                class="bg-[#743a25] hover:bg-[#5e2e1c] text-white text-sm
-                       font-semibold px-5 py-2 rounded-lg transition-colors">
-            {{ t('admin.filter_btn') }}
-        </button>
-        {% if selected_festival %}
-        <a href="{{ base_path }}/admin/"
-           class="text-sm text-brand-500 hover:text-[#5e2e1c] py-2 px-2">
-            ✕ Reset
-        </a>
-        {% endif %}
-    </form>
-</div>
+			{# Export — respektuje aktuální filtr #}
+			<a href="{{ base_path }}/admin/export" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700
+									          text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors">
+				📥
+				{% if current_locale() == 'cs' %}Export REGISTRACÍ{% else %}Export REGISTRATIONS
+				{% endif %}
+			</a>
 
-{# ── Tabulka ── #}
-<div class="bg-white rounded-xl border border-brand-200 overflow-hidden shadow-sm">
-    {% if exhibitors|length > 0 %}
-    <div class="overflow-x-auto">
-        <table class="min-w-full text-sm">
-            <thead class="bg-[#743a25] text-white text-xs uppercase tracking-wide">
-                <tr>
-                    <th class="px-4 py-3 text-left">{{ t('admin.col_id') }}</th>
-                    <th class="px-4 py-3 text-left">{{ t('admin.col_company') }}</th>
-                    <th class="px-4 py-3 text-left">{{ t('admin.col_contact') }}</th>
-                    <th class="px-4 py-3 text-left">{{ t('admin.col_email') }}</th>
-                    <th class="px-4 py-3 text-left">{{ t('admin.col_phone') }}</th>
-                    <th class="px-4 py-3 text-left">{{ t('admin.col_festivals') }}</th>
-                    <th class="px-4 py-3 text-left">{{ t('admin.col_created') }}</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-brand-100">
-                {% for ex in exhibitors %}
-                <tr class="hover:bg-[#fdf5f2] transition-colors
-                           {% if loop.index is even %}bg-[#fdf5f2]{% endif %}">
-                    <td class="px-4 py-3 text-brand-400 font-mono text-xs">
-                        #{{ ex.id }}
-                    </td>
-                    <td class="px-4 py-3">
-                        <div class="font-semibold text-brand-900">{{ ex.company }}</div>
-                        {% if ex.ico %}
-                        <div class="text-xs text-brand-400">IČ: {{ ex.ico }}</div>
-                        {% endif %}
-                    </td>
-                    <td class="px-4 py-3 text-[#5e2e1c]">
-                        {{ ex.contact_name }}
-                    </td>
-                    <td class="px-4 py-3">
-                        <a href="mailto:{{ ex.email }}"
-                           class="text-[#743a25] hover:underline">
-                            {{ ex.email }}
-                        </a>
-                    </td>
-                    <td class="px-4 py-3 text-[#5e2e1c] whitespace-nowrap">
-                        {{ ex.phone }}
-                    </td>
-                    <td class="px-4 py-3">
-                        {% if ex.festival_ids %}
-                            {% for fid in ex.festival_ids|split(',') %}
-                                {% for f in festivals %}
-                                    {% if f.id == fid|trim|number_format(0, '', '') %}
-                                    <span class="inline-block bg-[#f9e4db] text-[#5e2e1c]
-                                                 text-xs px-2 py-0.5 rounded-full mb-1">
-                                        {{ f.name }}
-                                    </span>
-                                    {% endif %}
-                                {% endfor %}
-                            {% endfor %}
-                        {% endif %}
-                    </td>
-                    <td class="px-4 py-3 text-brand-500 text-xs whitespace-nowrap">
-                        {{ ex.created_at|date('d. m. Y H:i') }}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div class="text-center py-16 text-brand-400">
-        <div class="text-4xl mb-3">📭</div>
-        <p>{{ t('admin.no_records') }}</p>
-    </div>
-    {% endif %}
-</div>
+			<a href="{{ base_path }}/admin/export-festivals{% if selected_festival %}?festival={{ selected_festival }}{% endif %}" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700
+									          text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors">
+				📥
+				{% if current_locale() == 'cs' %}Export FESTIVALŮ{% else %}Export FESTIVALS
+				{% endif %}
+			</a>
+		</div>
+	</div>
+
+	{# ── Filtr dle festivalu ── #}
+	<div class="bg-white rounded-xl border border-brand-200 p-4 mb-6">
+		<form method="GET" action="{{ base_path }}/admin/" class="flex flex-col sm:flex-row gap-3 items-end">
+			<div class="flex-1">
+				<label class="block text-xs font-semibold text-[#743a25] mb-1">
+					{{ t('admin.filter_festival') }}
+				</label>
+				<select name="festival" class="w-full rounded-lg border border-brand-300 px-3 py-2
+																		                           text-sm focus:outline-none focus:ring-2 focus:ring-[#d96e45]">
+					<option value="">{{ t('admin.filter_all') }}</option>
+					{% for festival in festivals %}
+						<option value="{{ festival.id }}" {% if selected_festival == festival.id %} selected {% endif %}>
+							{{ festival.name }}
+							—
+							{{ festival.city }}
+							({{ festival.date|date('d. m. Y') }})
+						</option>
+					{% endfor %}
+				</select>
+			</div>
+			<button type="submit" class="bg-[#743a25] hover:bg-[#5e2e1c] text-white text-sm
+															                       font-semibold px-5 py-2 rounded-lg transition-colors">
+				{{ t('admin.filter_btn') }}
+			</button>
+			{% if selected_festival %}
+				<a href="{{ base_path }}/admin/" class="text-sm text-brand-500 hover:text-[#5e2e1c] py-2 px-2">
+					✕ Reset
+				</a>
+			{% endif %}
+		</form>
+	</div>
+
+	{# ── Tabulka ── #}
+	<div class="bg-white rounded-xl border border-brand-200 overflow-hidden shadow-sm">
+		{% if exhibitors|length > 0 %}
+			<div class="overflow-x-auto">
+				<table
+					class="min-w-full text-sm">
+					{# Záhlaví tabulky #}
+					<thead class="bg-[#743a25] text-white text-sm uppercase tracking-wide">
+						<tr>
+							<th class="px-4 py-3 text-left">{{ t('admin.col_id') }}</th>
+							<th class="px-4 py-3 text-left">{{ t('admin.col_company') }}</th>
+							<th class="px-4 py-3 text-left">{{ t('admin.col_contact') }}</th>
+							<th class="px-4 py-3 text-left">{{ t('admin.col_email') }}</th>
+							<th class="px-4 py-3 text-left">{{ t('admin.col_phone') }}</th>
+							<th class="px-4 py-3 text-left">{{ t('admin.col_festivals') }}</th>
+							<th class="px-4 py-3 text-left">{{ t('admin.col_created') }}</th>
+							<th class="px-4 py-3 text-right">{{ t('admin.col_price') }}</th>
+						</tr>
+					</thead>
+
+					{# Řádky #}
+					<tbody class="divide-y divide-gray-100">
+						{% set grandTotal = 0 %}
+						{% for ex in exhibitors %}
+							{% set grandTotal = grandTotal + ex.total_price %}
+							<tr class="hover:bg-[#fdf5f2] transition-colors
+																											                   {% if loop.index is even %}bg-gray-50{% endif %}">
+								<td class="px-4 py-3 text-gray-400 font-mono text-sm">#{{ ex.id }}</td>
+								<td class="px-4 py-3">
+									<div class="font-semibold text-gray-900">{{ ex.company }}</div>
+									{% if ex.ico %}
+										<div class="text-xs text-gray-400">IČ:
+											{{ ex.ico }}</div>
+									{% endif %}
+								</td>
+								<td class="px-4 py-3 text-gray-700">{{ ex.contact_name }}</td>
+								<td class="px-4 py-3">
+									<a href="mailto:{{ ex.email }}" class="text-[#743a25] hover:underline">{{ ex.email }}</a>
+								</td>
+								<td class="px-4 py-3 text-gray-700 whitespace-nowrap">{{ ex.phone }}</td>
+								<td class="px-4 py-3">
+									{% if ex.festival_ids %}
+										{% for fid in ex.festival_ids|split(',') %}
+											{% for f in festivals %}
+												{% if f.id == fid|trim|number_format(0,'','') %}
+													<span class="inline-block bg-[#f9e4db] text-[#743a25]
+																																													                                         text-xs px-2 py-0.5 rounded-full mb-1">
+														{{ f.city }}
+													</span>
+												{% endif %}
+											{% endfor %}
+										{% endfor %}
+									{% endif %}
+								</td>
+								<td class="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+									{{ ex.created_at|date('d. m. Y H:i') }}
+								</td>
+								<td class="px-4 py-3 text-right font-semibold text-[#743a25] whitespace-nowrap">
+									{% if ex.total_price > 0 %}
+										{{ ex.total_price|number_format(0, ',', '.') }}
+										Kč
+									{% else %}
+										—
+									{% endif %}
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+
+					{# Řádek se sumou #}
+					<tfoot>
+						<tr class="bg-[#743a25] text-white">
+							<td colspan="6" class="px-4 py-3 font-bold text-right">
+								{{ t('admin.total') }}:
+							</td>
+							<td class="px-4 py-3 text-right font-black text-lg whitespace-nowrap">
+								{{ grandTotal|number_format(0, ',', '.') }}
+								Kč
+							</td>
+							<td></td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		{% else %}
+			<div class="text-center py-16 text-brand-400">
+				<div class="text-4xl mb-3">📭</div>
+				<p>{{ t('admin.no_records') }}</p>
+			</div>
+		{% endif %}
+	</div>
 
 {% endblock %}
-
-

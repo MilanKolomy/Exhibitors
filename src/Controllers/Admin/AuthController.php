@@ -50,8 +50,8 @@ class AuthController
         $user = trim($body['username'] ?? '');
         $pass = trim($body['password'] ?? '');
 
-        $validUser = getenv('ADMIN_USER');
-        $validHash = getenv('ADMIN_PASS_HASH');
+        $validUser = env('ADMIN_USER');
+        $validHash = env('ADMIN_PASS_HASH');
 
         if ($user === $validUser && password_verify($pass, $validHash)) {
             session_regenerate_id(true);

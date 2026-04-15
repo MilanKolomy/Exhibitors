@@ -16,17 +16,17 @@ class MailService
         $this->mailer = new PHPMailer(true);
 
         $this->mailer->isSMTP();
-        $this->mailer->Host       = getenv('MAIL_HOST');
+        $this->mailer->Host       = env('MAIL_HOST');
         $this->mailer->SMTPAuth   = true;
-        $this->mailer->Username   = getenv('MAIL_USERNAME');
-        $this->mailer->Password   = getenv('MAIL_PASSWORD');
+        $this->mailer->Username   = env('MAIL_USERNAME');
+        $this->mailer->Password   = env('MAIL_PASSWORD');
         $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // SSL
-        $this->mailer->Port       = (int) getenv('MAIL_PORT');
+        $this->mailer->Port       = (int) env('MAIL_PORT');
         $this->mailer->CharSet    = 'UTF-8';
 
         $this->mailer->setFrom(
-            getenv('MAIL_FROM'),
-            getenv('MAIL_FROM_NAME')
+            env('MAIL_FROM'),
+            env('MAIL_FROM_NAME')
         );
     }
 
@@ -152,8 +152,8 @@ class MailService
 
                 <p style="margin-top:24px;font-size:13px;color:#888;">
                     ' . ($locale === 'cs'
-                        ? 'Toto je automaticky generovaný e-mail. V případě dotazů nás kontaktujte na ' . getenv('MAIL_FROM')
-                        : 'This is an automatically generated e-mail. For questions contact us at ' . getenv('MAIL_FROM')) . '
+                        ? 'Toto je automaticky generovaný e-mail. V případě dotazů nás kontaktujte na ' . env('MAIL_FROM')
+                        : 'This is an automatically generated e-mail. For questions contact us at ' . env('MAIL_FROM')) . '
                 </p>
             </div>
 

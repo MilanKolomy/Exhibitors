@@ -17,6 +17,7 @@ return [
     'col_phone'      => 'Phone',
     'col_festivals'  => 'Festivals',
     'col_created'    => 'Registration date',
+    'col_price'      => 'Total price',
     'no_records'     => 'No registrations found',
     'export_btn'     => 'Export to XLSX',
 ];

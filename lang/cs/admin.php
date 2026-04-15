@@ -17,6 +17,7 @@ return [
     'col_phone'      => 'Telefon',
     'col_festivals'  => 'Festivaly',
     'col_created'    => 'Datum registrace',
+    'col_price'      => 'Cena celkem',
     'no_records'     => 'Žádné registrace nenalezeny',
     'export_btn'     => 'Exportovat do XLSX',
 ];
