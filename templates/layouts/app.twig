@@ -24,6 +24,8 @@
 				font-size: 18px;
 			}
 
+               .terms-item { font-size: 0.85rem; }
+
 			@keyframes shake {
 				0,
 				100% {
@@ -65,7 +67,7 @@
 
 					{# Střed — název aplikace #}
 					<div class="flex justify-center">
-						<span class="font-semibold text-gray-800 text-xl text-center">
+						<span class="font-semibold text-[#743a25] text-xl text-center">
 							{{ t('common.app_name') }}
 						</span>
 					</div>
@@ -87,7 +89,7 @@
 			</main>
 
 			{# Footer #}
-			<footer class="text-center text-xs text-gray-400 py-6">
+			<footer class="text-center text-xs text-[#743a25] py-6">
 				&copy;
 				{{ "now"|date("Y") }}
 				{{ t('common.app_name') }}

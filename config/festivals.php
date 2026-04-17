@@ -111,7 +111,7 @@ return [
         'name'     => 'OC Nisa',
         'city'     => 'Liberec',
         'date_from'=> '2027-03-19',
-        'date_to'  => '2027-03-20',
+        'date_to'  => '2027-03-21',
         'type'     => 'oc',
     ],
     [

@@ -1,69 +1,101 @@
 <?php
 return [
-    'title'       => 'Exhibitor Registration',
-    'subtitle'    => 'Please fill in the registration form',
-    'success_title'   => 'Thank you for registering!',
-    'success_text'    => 'Your registration has been successfully submitted. We will contact you.',
-    'fields' => [
-        'ico' => [
-            'label' => 'Company ID (IČ)',
-            'hint'  => 'Enter your Czech company ID and click the button to load data from ARES',
-        ],
-        'company' => [
-            'label' => 'Company name',
-            'hint'  => 'Auto-filled from ARES, can be edited',
-        ],
-        'address' => [
-            'label' => 'Registered address',
-            'hint'  => 'Auto-filled from ARES, can be edited',
-        ],
-        'dic' => [
-            'label' => 'VAT number (DIČ)',
-            'hint'  => 'Fill in if you are a VAT payer',
-        ],
-        'contact_name' => [
-            'label' => 'Contact person',
-            'hint'  => 'Full name of the responsible person',
-        ],
-        'email' => [
-            'label' => 'E-mail',
-            'hint'  => 'Contact e-mail of the responsible person',
-        ],
-        'phone' => [
-            'label' => 'Phone',
-            'hint'  => 'Contact phone e.g. +420 xxx xxx xxx',
-        ],
-        'website' => [
-            'label' => 'Website',
-            'hint'  => 'E.g. https://www.your-company.com',
-        ],
-        'social_networks' => [
-            'label' => 'Social networks',
-            'hint'  => 'Links to Facebook, Instagram etc. (one per line)',
-        ],
-        'sortiment' => [
-            'label' => 'Products / services offered',
-            'hint'  => 'Describe what you will be offering at the festival',
-        ],
-        'festivals' => [
-            'label' => 'I will attend these festivals',
-            'hint'  => 'Select all dates you are interested in',
-        ],
-        'terms' => [
-            'label' => 'I agree to the Terms & Conditions',
-            'hint'  => '',
-        ],
-    ],
-    'errors' => [
-        'ico'          => 'Company ID is required',
-        'company'      => 'Company name is required',
-        'address'      => 'Address is required',
-        'contact_name' => 'Contact person name is required',
-        'email'        => 'Enter a valid e-mail address',
-        'phone'        => 'Phone number is required',
-        'sortiment'    => 'Product description is required',
-        'festivals'    => 'Please select at least one festival',
-        'terms'        => 'You must agree to the Terms & Conditions',
-        'captcha'      => 'reCAPTCHA verification failed, please try again',
-    ],
+     'title'       => 'Exhibitor Registration',
+     'subtitle'    => 'Please fill in the registration form',
+     'success_title'   => 'Thank you for registering!',
+     'success_text'    => 'Your registration has been successfully submitted. We will contact you.',
+     'fields' => [
+          'ico' => [
+               'label' => 'Company ID (IČ)',
+               'hint'  => 'Enter your Czech company ID and click the button to load data from ARES',
+          ],
+          'company' => [
+               'label' => 'Company name',
+               'hint'  => 'Auto-filled from ARES, can be edited',
+          ],
+          'address' => [
+               'label' => 'Registered address',
+               'hint'  => 'Auto-filled from ARES, can be edited',
+          ],
+          'dic' => [
+               'label' => 'VAT number (DIČ)',
+               'hint'  => 'Fill in if you are a VAT payer',
+          ],
+          'contact_name' => [
+               'label' => 'Contact person',
+               'hint'  => 'Full name of the responsible person',
+          ],
+          'email' => [
+               'label' => 'E-mail',
+               'hint'  => 'Contact e-mail of the responsible person',
+          ],
+          'phone' => [
+               'label' => 'Phone',
+               'hint'  => 'Contact phone e.g. +420 xxx xxx xxx',
+          ],
+          'website' => [
+               'label' => 'Website',
+               'hint'  => 'E.g. https://www.your-company.com',
+          ],
+          'social_networks' => [
+               'label' => 'Social networks',
+               'hint'  => 'Links to Facebook, Instagram etc. (one per line)',
+          ],
+          'sortiment' => [
+               'label' => 'Products / services offered',
+               'hint'  => 'Describe what you will be offering at the festival',
+          ],
+          'festivals' => [
+               'label' => 'I will attend these festivals',
+               'hint'  => 'Select all dates you are interested in',
+          ],
+          'terms' => [
+               'label' => 'I agree to the Terms & Conditions',
+               'hint'  => '',
+          ],
+     ],
+     'errors' => [
+          'ico'          => 'Company ID is required',
+          'company'      => 'Company name is required',
+          'address'      => 'Address is required',
+          'contact_name' => 'Contact person name is required',
+          'email'        => 'Enter a valid e-mail address',
+          'phone'        => 'Phone number is required',
+          'sortiment'    => 'Product description is required',
+          'festivals'    => 'Please select at least one festival',
+          'terms'        => 'You must agree to the Terms & Conditions',
+          'captcha'      => 'reCAPTCHA verification failed, please try again',
+     ],
+     'terms_page' => [
+          'title'    => 'Organizer Terms & Exhibitor Obligations',
+          'subtitle' => 'Please read all points and confirm your agreement.',
+          'items' => [
+               1  => 'The exhibitor must submit the application no later than :deadline. If the organizer accepts the application, the exhibitor will be notified at the provided e-mail. The organizer reserves the right to decide on acceptance.',
+               2  => 'The stand and its decoration must remain in place for the entire duration of the event. Dismantling is only permitted after the event ends, unless otherwise specified by the organizer.',
+               3  => 'The exhibitor may not participate in the same or similar event within :exclusivity_months months before or after this event without informing ČokoFest.',
+               4  => 'After confirmation, an invoice will be issued. The application becomes valid upon payment of at least :payment_percent% of the amount. If payment is not received within :payment_days days of the invoice, the application will be cancelled.',
+               5  => 'The exhibitor must comply with the event operating hours.',
+               6  => 'The exhibitor is required to clean their rented space after the event.',
+               7  => 'Violation of points 2, 3, 5 and 6 may result in a fine of CZK :fine_basic per point.',
+               8  => 'The exhibitor is not authorized to sublease the exhibition space to a third party.',
+               9  => 'Participation in the event is at the exhibitor\'s own risk.',
+               10 => 'The organizer is not liable for loss, destruction or damage to items brought by the exhibitor into the rented premises, regardless of whether the damage occurred during setup, dismantling, transport or during the event.',
+               11 => 'The exhibitor must comply with all safety, hygiene, fire, ecological and other legally binding regulations throughout setup, the event, and dismantling.',
+               12 => 'The exhibitor must not store or use any flammable substances, explosives, poisons or other hazardous materials in their stand or in the gallery space.',
+               13 => 'Smoking and open flames are prohibited in all covered areas during the event, setup and dismantling.',
+               14 => 'The exhibitor must use designated walkways. Emergency exits and electrical panel areas must be kept clear at all times.',
+               15 => 'The exhibitor may only promote their products or services within their own stand and must not disturb neighboring stands.',
+               16 => 'Placing promotional materials outside the exhibitor\'s own stand is permitted only with prior written approval from the organizer and at an additional charge.',
+               17 => 'The organizer reserves the right to prohibit any advertising that does not comply with these terms or that violates human dignity.',
+               18 => 'Audiovisual and musical performances are permitted only with the organizer\'s written consent and the relevant copyright collective society approval. Noise levels outside the stand must not exceed legally permitted values.',
+               19 => 'Performances causing excessive noise, dust or endangering safety may be prohibited and the exhibitor may be charged a contractual penalty of CZK :fine_production.',
+          ],
+          'agreement_title'   => 'Agreement to Terms & Conditions',
+          'agreement_text_before' => 'I declare that I have read the',
+          'agreement_text_link'   => 'Terms & Conditions of ChrisEvents s.r.o.',
+          'agreement_text_after'  => ', which form an integral part of this application, that I understand their content and agree to them. I acknowledge that this is a framework agreement to be implemented in parts.',
+          'agreement_checkbox' => 'I agree',
+          'error_items'       => 'Please confirm your agreement to all condition points.',
+          'error_agreement'   => 'Please confirm your agreement to the Terms & Conditions.',
+     ],
 ];

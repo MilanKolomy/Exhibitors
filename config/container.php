@@ -41,7 +41,7 @@ return [
                     : false,
                'auto_reload' => true,
           ]);
-          
+
 
           // Globální proměnné dostupné ve všech šablonách
           $twig->addGlobal('base_path', rtrim(env('APP_BASE_PATH') ?: '', '/'));
@@ -50,9 +50,6 @@ return [
                return $_SESSION['locale'] ?? 'cs';
           }));
           $twig->addGlobal('festivals', require __DIR__ . '/festivals.php');
-          
-
-          // V definici Environment::class — přidej za $twig = new Environment(...):
 
           $twig->addFunction(new \Twig\TwigFunction('t', function (string $key, array $replace = []) {
                $locale = $_SESSION['locale'] ?? 'cs';
@@ -67,6 +64,18 @@ return [
           $twig->addFunction(new \Twig\TwigFunction('field_hint', function (string $field) {
                $locale = $_SESSION['locale'] ?? 'cs';
                return __t("registration.fields.{$field}.hint", [], $locale);
+          }));
+
+          $twig->addFunction(new \Twig\TwigFunction('term', function (string $key) {
+               $locale = $_SESSION['locale'] ?? 'cs';
+               $params = require __DIR__ . "/../lang/{$locale}/terms.php";
+               $text   = __t("registration.terms_page.items.{$key}", [], $locale);
+
+               foreach ($params as $param => $value) {
+                    $text = str_replace(':' . $param, $value, $text);
+               }
+
+               return $text;
           }));
 
           $captcha = new \App\Services\CaptchaService();

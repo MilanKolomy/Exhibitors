@@ -1,69 +1,101 @@
 <?php
 return [
-    'title'       => 'Registrace vystavovatele',
-    'subtitle'    => 'Vyplňte prosím registrační formulář',
-    'success_title'   => 'Děkujeme za registraci!',
-    'success_text'    => 'Vaše registrace byla úspěšně odeslána. Budeme vás kontaktovat.',
-    'fields' => [
-        'ico' => [
-            'label' => 'IČ',
-            'hint'  => 'Po zadání IČ klikněte na tlačítko pro načtení údajů z registru ARES',
-        ],
-        'company' => [
-            'label' => 'Název firmy / obchodní jméno',
-            'hint'  => 'Vyplní se automaticky z ARES, lze upravit',
-        ],
-        'address' => [
-            'label' => 'Adresa sídla',
-            'hint'  => 'Vyplní se automaticky z ARES, lze upravit',
-        ],
-        'dic' => [
-            'label' => 'DIČ',
-            'hint'  => 'Vyplňte pokud jste plátce DPH',
-        ],
-        'contact_name' => [
-            'label' => 'Jméno odpovědné osoby',
-            'hint'  => 'Jméno a příjmení kontaktní osoby',
-        ],
-        'email' => [
-            'label' => 'E-mail',
-            'hint'  => 'Kontaktní e-mail odpovědné osoby',
-        ],
-        'phone' => [
-            'label' => 'Telefon',
-            'hint'  => 'Kontaktní telefon ve formátu +420 xxx xxx xxx',
-        ],
-        'website' => [
-            'label' => 'Webové stránky',
-            'hint'  => 'Např. https://www.vase-firma.cz',
-        ],
-        'social_networks' => [
-            'label' => 'Sociální sítě',
-            'hint'  => 'Odkazy na Facebook, Instagram apod. (každý odkaz na nový řádek)',
-        ],
-        'sortiment' => [
-            'label' => 'Nabízený sortiment',
-            'hint'  => 'Popište zboží nebo služby, které budete na festivalu nabízet',
-        ],
-        'festivals' => [
-            'label' => 'Zúčastním se těchto festivalů',
-            'hint'  => 'Vyberte všechny termíny, které vás zajímají',
-        ],
-        'terms' => [
-            'label' => 'Souhlasím s obchodními podmínkami',
-            'hint'  => '',
-        ],
-    ],
-    'errors' => [
-        'ico'          => 'IČ je povinné pole',
-        'company'      => 'Název firmy je povinný',
-        'address'      => 'Adresa je povinná',
-        'contact_name' => 'Jméno odpovědné osoby je povinné',
-        'email'        => 'Zadejte platný e-mail',
-        'phone'        => 'Telefon je povinný',
-        'sortiment'    => 'Popis sortimentu je povinný',
-        'festivals'    => 'Vyberte alespoň jeden festival',
-        'terms'        => 'Musíte souhlasit s obchodními podmínkami',
-        'captcha'      => 'Ověření reCAPTCHA selhalo, zkuste to prosím znovu',
-    ],
+     'title'       => 'Registrace vystavovatele',
+     'subtitle'    => 'Vyplňte prosím registrační formulář',
+     'success_title'   => 'Děkujeme za registraci!',
+     'success_text'    => 'Vaše registrace byla úspěšně odeslána. Budeme vás kontaktovat.',
+     'fields' => [
+          'ico' => [
+               'label' => 'IČ',
+               'hint'  => 'Po zadání IČ klikněte na tlačítko pro načtení údajů z registru ARES',
+          ],
+          'company' => [
+               'label' => 'Název firmy / obchodní jméno',
+               'hint'  => 'Vyplní se automaticky z ARES, lze upravit',
+          ],
+          'address' => [
+               'label' => 'Adresa sídla',
+               'hint'  => 'Vyplní se automaticky z ARES, lze upravit',
+          ],
+          'dic' => [
+               'label' => 'DIČ',
+               'hint'  => 'Vyplňte pokud jste plátce DPH',
+          ],
+          'contact_name' => [
+               'label' => 'Jméno odpovědné osoby',
+               'hint'  => 'Jméno a příjmení kontaktní osoby',
+          ],
+          'email' => [
+               'label' => 'E-mail',
+               'hint'  => 'Kontaktní e-mail odpovědné osoby',
+          ],
+          'phone' => [
+               'label' => 'Telefon',
+               'hint'  => 'Kontaktní telefon ve formátu +420 xxx xxx xxx',
+          ],
+          'website' => [
+               'label' => 'Webové stránky',
+               'hint'  => 'Např. https://www.vase-firma.cz',
+          ],
+          'social_networks' => [
+               'label' => 'Sociální sítě',
+               'hint'  => 'Odkazy na Facebook, Instagram apod. (každý odkaz na nový řádek)',
+          ],
+          'sortiment' => [
+               'label' => 'Nabízený sortiment',
+               'hint'  => 'Popište zboží nebo služby, které budete na festivalu nabízet',
+          ],
+          'festivals' => [
+               'label' => 'Zúčastním se těchto festivalů',
+               'hint'  => 'Vyberte všechny termíny, které vás zajímají',
+          ],
+          'terms' => [
+               'label' => 'Souhlasím s obchodními podmínkami',
+               'hint'  => '',
+          ],
+     ],
+     'errors' => [
+          'ico'          => 'IČ je povinné pole',
+          'company'      => 'Název firmy je povinný',
+          'address'      => 'Adresa je povinná',
+          'contact_name' => 'Jméno odpovědné osoby je povinné',
+          'email'        => 'Zadejte platný e-mail',
+          'phone'        => 'Telefon je povinný',
+          'sortiment'    => 'Popis sortimentu je povinný',
+          'festivals'    => 'Vyberte alespoň jeden festival',
+          'terms'        => 'Musíte souhlasit s obchodními podmínkami',
+          'captcha'      => 'Ověření reCAPTCHA selhalo, zkuste to prosím znovu',
+     ],
+     'terms_page' => [
+          'title'    => 'Podmínky pořadatele, povinnosti vystavovatele',
+          'subtitle' => 'Prosím, přečtěte si všechny body a zatrhněte, že souhlasíte.',
+          'items' => [
+               1  => 'Vystavovatel musí poslat přihlášku nejpozději do :deadline. Jestliže pořadatel jeho přihlášku akceptuje, vyrozumí vystavovatele na uvedený e-mail. Pořadatel si vyhrazuje právo vlastního rozhodnutí o přijetí přihlášky.',
+               2  => 'Stánek a jeho výzdoba musí zůstat na místě po celou dobu konání akce. Demontáž stánku je možná až po skončení akce, nestanoví-li pořadatel jinak.',
+               3  => 'Vystavovatel se nemůže zúčastnit stejné akce nebo akce s podobným účelem jako je tato, :exclusivity_months měsíce před a :exclusivity_months měsíce po akci, aniž by o tom informoval pořadatele ČokoFest.',
+               4  => 'Po potvrzení pořadatelem bude vystavena faktura na dohodnutou částku. Přihláška se stává platnou zaplacením nejméně :payment_percent % částky. Nedojde-li k platbě v termínu :payment_days dní od vystavení, bude přihláška stornována.',
+               5  => 'Vystavovatel musí dodržet provozní dobu akce.',
+               6  => 'Vystavovatel je povinen po skončení akce svůj pronajatý prostor řádně uklidit.',
+               7  => 'Porušení bodů 2, 3, 5 a 6 může vést k udělení pokuty ve výši :fine_basic Kč za každý bod.',
+               8  => 'Vystavovatel není oprávněn přenechat výstavní plochu třetí osobě.',
+               9  => 'Účast na akci je na vlastní riziko vystavovatele.',
+               10 => 'Pořadatel neodpovídá vystavovatelům za ztrátu, zničení nebo jakékoliv poškození věcí vnesených vystavovatelem do pronajatých prostor, a to bez ohledu, zda ztráta, zničení nebo jiné poškození vznikly při montáži, demontáži, dopravě či v průběhu akce.',
+               11 => 'Vystavovatel je povinen dodržovat bezpečnostní, hygienické, protipožární, ekologické a další obecně závazné právní předpisy po celou dobu montáže, konání akce i demontáže.',
+               12 => 'Vystavovatel nesmí ve své expozici ani v prostoru galerie skladovat nebo používat žádné hořlavé látky, výbušniny, jedy a jiné zdraví škodlivé látky.',
+               13 => 'Po dobu konání akce i při montáži a demontáži platí ve všech krytých prostorách zákaz kouření a manipulace s otevřeným ohněm.',
+               14 => 'Vystavovatel je povinen používat k chůzi vyhrazených cest. Únikové cesty a prostory u elektrických rozvaděčů je povinen udržovat volné.',
+               15 => 'Vystavovatel je oprávněn propagovat své výrobky či služby pouze na vlastní expozici a nesmí rušit okolní expozice.',
+               16 => 'Umisťování reklamních materiálů mimo vlastní expozici je povoleno pouze po písemném projednání s pořadatelem a za úplatu.',
+               17 => 'Pořadatel je oprávněn zakázat veškerou reklamu, která neodpovídá podmínkám nebo snižuje lidskou důstojnost.',
+               18 => 'Audiovizuální a hudební produkce je povolena pouze se souhlasem pořadatele a příslušného kolektivního správce autorských práv. Hladina hluku za hranicí stánku nesmí překročit povolenou hodnotu.',
+               19 => 'Produkce způsobující nadměrný hluk, prach či ohrožující bezpečnost může být zakázána a vystavovateli může být udělena smluvní pokuta ve výši :fine_production Kč.',
+          ],
+          'agreement_title'   => 'Souhlas s Obchodními podmínkami',
+          'agreement_text_before' => 'Prohlašuji, že jsem se seznámil s',
+          'agreement_text_link'   => 'Obchodními podmínkami ChrisEvents s.r.o.',
+          'agreement_text_after'  => ', které jsou nedílnou součástí této přihlášky, jejich obsahu rozumím a souhlasím s ním. Beru na vědomí, že se jedná o rámcovou smlouvu, která bude realizována po částech.',
+          'agreement_checkbox' => 'Souhlasím',
+          'error_items'       => 'Prosím potvrďte souhlas se všemi body podmínek.',
+          'error_agreement'   => 'Prosím potvrďte souhlas s Obchodními podmínkami.',
+     ],
 ];
