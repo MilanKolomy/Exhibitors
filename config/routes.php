@@ -50,6 +50,7 @@ return function (App $app): void {
             $protected->get( '/',       [DashboardController::class, 'index']);
             $protected->get( '/export', [DashboardController::class, 'export']);
             $protected->get('/export-festivals', [DashboardController::class, 'exportFestivals']);
+            $protected->post('/exhibitor/{id}/invalidate', [DashboardController::class, 'invalidate']);
         })->add(AdminAuthMiddleware::class);
     });
 };

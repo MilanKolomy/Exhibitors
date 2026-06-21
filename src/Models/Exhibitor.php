@@ -62,6 +62,7 @@ class Exhibitor
             FROM exhibitors e
             JOIN exhibitor_festivals ef ON ef.exhibitor_id = e.id
             WHERE ef.festival_id = :festival_id
+              AND e.deleted_at IS NULL
             GROUP BY e.id
             ORDER BY e.created_at DESC
         ";
@@ -78,6 +79,7 @@ class Exhibitor
                 GROUP_CONCAT(ef.price_total   ORDER BY ef.festival_id) AS prices_total
             FROM exhibitors e
             LEFT JOIN exhibitor_festivals ef ON ef.exhibitor_id = e.id
+            WHERE e.deleted_at IS NULL
             GROUP BY e.id
             ORDER BY e.created_at DESC
         ";
@@ -85,5 +87,13 @@ class Exhibitor
           }
 
           return $stmt->fetchAll();
+     }
+
+     public function softDelete(int $id): void
+     {
+          $stmt = $this->pdo->prepare(
+               "UPDATE exhibitors SET deleted_at = NOW() WHERE id = :id"
+          );
+          $stmt->execute([':id' => $id]);
      }
 }

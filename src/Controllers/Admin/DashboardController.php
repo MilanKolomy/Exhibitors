@@ -76,6 +76,23 @@ class DashboardController
           return $response;
      }
 
+     public function invalidate(Request $request, Response $response, array $args): Response
+     {
+          $id = (int) ($args['id'] ?? 0);
+          if ($id > 0) {
+               $this->exhibitor->softDelete($id);
+          }
+
+          $params  = $request->getQueryParams();
+          $redirect = isset($params['festival']) && $params['festival'] !== ''
+               ? basePath('admin/?festival=' . (int) $params['festival'])
+               : basePath('admin/');
+
+          return $response
+               ->withHeader('Location', $redirect)
+               ->withStatus(302);
+     }
+
      public function exportFestivals(Request $request, Response $response): Response
      {
           $festivals  = require __DIR__ . '/../../../config/festivals.php';

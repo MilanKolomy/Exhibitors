@@ -276,6 +276,21 @@
                                                        IP: {{ ex.ip_address ?? '—' }} ·
                                                        Registrace: {{ ex.created_at|date('d. m. Y H:i') }}
                                                   </div>
+
+                                                  {# Zneplatnit #}
+                                                  <form method="POST"
+                                                        action="{{ base_path }}/admin/exhibitor/{{ ex.id }}/invalidate{% if selected_festival %}?festival={{ selected_festival }}{% endif %}"
+                                                        class="mt-4"
+                                                        @submit.prevent="
+                                                             if (confirm('Opravdu chcete zneplatnit vystavovatele „' + '{{ ex.company|e('js') }}' + '"? Tato akce je nevratná.'))
+                                                                  $el.submit()
+                                                        ">
+                                                       <button type="submit"
+                                                               class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700
+                                                                      text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
+                                                            🚫 Zneplatnit vystavovatele
+                                                       </button>
+                                                  </form>
                                                   </div>
 
                                              </div>
