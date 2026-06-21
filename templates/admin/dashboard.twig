@@ -281,10 +281,7 @@
                                                   <form method="POST"
                                                         action="{{ base_path }}/admin/exhibitor/{{ ex.id }}/invalidate{% if selected_festival %}?festival={{ selected_festival }}{% endif %}"
                                                         class="mt-4"
-                                                        @submit.prevent="
-                                                             if (confirm('Opravdu chcete zneplatnit vystavovatele „' + '{{ ex.company|e('js') }}' + '"? Tato akce je nevratná.'))
-                                                                  $el.submit()
-                                                        ">
+                                                        onsubmit="return confirm('Opravdu chcete zneplatnit tohoto vystavovatele? Tato akce je nevratna.')">
                                                        <button type="submit"
                                                                class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700
                                                                       text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors">
