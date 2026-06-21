@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html lang="{{ current_locale() }}">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>
+			{% block title %}
+				{{ t('common.app_name') }}
+			{% endblock %}
+		</title>
+
+		 <script src="https://cdn.tailwindcss.com"></script>
+           <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+		{% if recaptcha_enabled %}
+			 <script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}"></script>
+		{% endif %}
+
+		<style>
+			[x-cloak] {
+				display: none !important;
+			}
+			html {
+				font-size: 18px;
+			}
+
+			.terms-item {
+				font-size: 0.85rem;
+			}
+
+			@keyframes shake {
+				0,
+				100% {
+					transform: translateX(0);
+				}
+				20% {
+					transform: translateX(-6px);
+				}
+				40% {
+					transform: translateX(6px);
+				}
+				60% {
+					transform: translateX(-4px);
+				}
+				80% {
+					transform: translateX(4px);
+				}
+			}
+			.shake {
+				animation: shake 0.5s ease-in-out;
+			}
+		</style>
+	</head>
+	<body
+		class="bg-[#f9e4db] min-h-screen">
+
+		{# Navigace #}
+		<nav class="bg-white shadow-md">
+			<div class="max-w-3xl mx-auto px-4 py-3">
+				<div
+					class="grid grid-cols-3 items-center">
+
+					{# Vlevo — logo #}
+					<div class="flex items-center">
+						<a href="{{ base_path }}/{{ current_locale() == 'cs' ? 'cs/registrace' : 'en/registration' }}">
+							<img src="{{ base_path }}/assets/img/logo.png" alt="Logo" class="h-10 w-auto">
+						</a>
+					</div>
+
+					{# Střed — název aplikace #}
+					<div class="flex justify-center">
+						<span class="font-semibold text-[#743a25] text-center
+								                 text-base leading-tight
+								                 sm:text-xl sm:leading-normal">
+							{{ t('common.app_name') }}
+						</span>
+					</div>
+
+					{# Vpravo — přepínač jazyka #}
+					<div class="flex justify-end">
+						<a href="{{ lang_switch_url is defined ? lang_switch_url : (current_locale() == 'cs' ? '{{ base_path }}/en/registration' : '{{ base_path }}/cs/registrace') }}" class="text-base text-[#743a25] hover:text-[#4a2416] font-medium">
+							🌐
+							{{ current_locale() == 'cs' ? 'EN' : 'CS' }}
+						</a>
+					</div>
+
+				</div>
+			</div>
+		</nav>
+
+		{# Obsah #}
+		<main class="max-w-3xl mx-auto px-4 py-10"> {% block content %}{% endblock %}
+			</main>
+
+			{# Footer #}
+			<footer class="text-center text-xs text-[#743a25] py-6">
+				&copy;
+				{{ "now"|date("Y") }}
+				{{ t('common.app_name') }}
+			</footer>
+
+		</body>
+	</html>

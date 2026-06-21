@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="{{ current_locale() }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% if current_locale() == 'cs' %}Důležité informace k registraci
+        {% else %}Terms and Conditions of ChrisEvents s.r.o.{% endif %}
+        — {{ t('common.app_name') }}
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html { font-size: 17px; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <div class="max-w-3xl mx-auto px-4 py-10">
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+
+            <h1 class="text-2xl font-bold text-gray-900 mb-6">
+                {% if current_locale() == 'cs' %}
+                    Obchodní podmínky ChrisEvents s.r.o.
+                {% else %}
+                    Terms and Conditions of ChrisEvents s.r.o.
+                {% endif %}
+            </h1>
+
+            <div class="prose text-gray-700 space-y-4 text-base leading-relaxed">
+                {% if current_locale() == 'cs' %}
+
+                    {# === CZECH CONTENT === #}
+<p>Tyto obchodní podmínky upravují vztah mezi společností ChrisEvents s.r.o. (dále jen „organizátor“) a vystavovatelem přihlášeným na akce ČokoFest.</p>
+<p>Odesláním přihlášky se vystavovatel závazně registruje na vybranou akci a souhlasí s těmito podmínkami.</p>
+<p>Organizátor si vyhrazuje právo přihlášku schválit nebo odmítnout. Účast na akci je potvrzena až po písemném potvrzení ze strany organizátora.</p>
+<p>Vystavovatel se zavazuje uhradit účastnický poplatek na základě vystavené faktury ve stanovené lhůtě.</p>
+<p>V případě zrušení účasti ze strany vystavovatele nevzniká automaticky nárok na vrácení poplatku, pokud není dohodnuto jinak.</p>
+<p>Organizátor si vyhrazuje právo na změny programu, termínu nebo místa konání z organizačních nebo vyšších důvodů.</p>
+
+                {% else %}
+                
+                    {# === ENGLISH CONTENT === #}
+<p>These Terms and Conditions govern the relationship between ChrisEvents s.r.o. (hereinafter referred to as the "Organizer") and the exhibitor registered for ČokoFest events.</p>
+<p>By submitting the application, the exhibitor bindingly registers for the selected event and agrees to these Terms and Conditions.</p>
+<p>The Organizer reserves the right to approve or decline the application. Participation in the event is confirmed only upon written confirmation from the Organizer.</p>
+<p>The exhibitor undertakes to pay the participation fee based on the issued invoice within the specified period.</p>
+<p>In the event of cancellation by the exhibitor, there is no automatic entitlement to a refund of the fee, unless otherwise agreed.</p>
+<p>The Organizer reserves the right to make changes to the programme, date or venue of the event for organisational or force majeure reasons.</p>
+
+                {% endif %}
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-gray-100">
+                <button onclick="window.close()"
+                        class="text-sm text-[#743a25] hover:underline">
+                    ← {% if current_locale() == 'cs' %}Zavřít{% else %}Close{% endif %}
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
