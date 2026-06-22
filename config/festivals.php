@@ -44,11 +44,11 @@ return [
     ],
     [
         'id'       => 5,
-        'name'     => 'Géčko',
+        'name'     => 'Výstaviště',
         'city'     => 'České Budějovice',
-        'date_from'=> '2026-10-23',
+        'date_from'=> '2026-10-24',
         'date_to'  => '2026-10-25',
-        'type'     => 'oc',
+        'type'     => 'hala',
     ],
     [
         'id'       => 6,
