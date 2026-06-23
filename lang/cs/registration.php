@@ -70,7 +70,7 @@ return [
           'title'    => 'Podmínky pořadatele, povinnosti vystavovatele',
           'subtitle' => 'Prosím, přečtěte si všechny body a zatrhněte, že souhlasíte.',
           'items' => [
-               1  => 'Vystavovatel musí poslat přihlášku nejpozději do :deadline. Jestliže pořadatel jeho přihlášku akceptuje, vyrozumí vystavovatele na uvedený e-mail. Pořadatel si vyhrazuje právo vlastního rozhodnutí o přijetí přihlášky.',
+               1  => 'Vystavovatelé musí podat své přihlášky nejpozději dva týdny před zahájením zvolené akce. Pokud organizátor jejich přihlášku schválí, budou o tom informováni e-mailem na uvedenou adresu. Organizátor si vyhrazuje právo učinit konečné rozhodnutí o přijetí přihlášky.',
                2  => 'Stánek a jeho výzdoba musí zůstat na místě po celou dobu konání akce. Demontáž stánku je možná až po skončení akce, nestanoví-li pořadatel jinak.',
                3  => 'Vystavovatel se nemůže zúčastnit stejné akce nebo akce s podobným účelem jako je tato, :exclusivity_months měsíce před a :exclusivity_months měsíce po akci, aniž by o tom informoval pořadatele ČokoFest.',
                4  => 'Po potvrzení pořadatelem bude vystavena faktura na dohodnutou částku. Přihláška se stává platnou zaplacením nejméně :payment_percent % částky. Nedojde-li k platbě v termínu :payment_days dní od vystavení, bude přihláška stornována.',

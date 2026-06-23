@@ -70,7 +70,7 @@ return [
           'title'    => 'Organizer Terms & Exhibitor Obligations',
           'subtitle' => 'Please read all points and confirm your agreement.',
           'items' => [
-               1  => 'The exhibitor must submit the application no later than :deadline. If the organizer accepts the application, the exhibitor will be notified at the provided e-mail. The organizer reserves the right to decide on acceptance.',
+               1  => 'Exhibitors must submit their applications no later than two weeks before the start of the chosen event. If the organizer approves their application, they will be notified by e-mail at the provided address. The organizer reserves the right to make the final decision on acceptance of the application.',
                2  => 'The stand and its decoration must remain in place for the entire duration of the event. Dismantling is only permitted after the event ends, unless otherwise specified by the organizer.',
                3  => 'The exhibitor may not participate in the same or similar event within :exclusivity_months months before or after this event without informing ČokoFest.',
                4  => 'After confirmation, an invoice will be issued. The application becomes valid upon payment of at least :payment_percent% of the amount. If payment is not received within :payment_days days of the invoice, the application will be cancelled.',
