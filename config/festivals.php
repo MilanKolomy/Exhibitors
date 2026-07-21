@@ -15,7 +15,7 @@ return [
         'name'     => 'Hotel Thermal',
         'city'     => 'Karlovy Vary',
         'date_from'=> '2026-09-26',
-        'date_to'  => '2026-09-27',
+        'date_to'  => '2026-09-28',
         'type'     => 'hala',
     ],
     [
