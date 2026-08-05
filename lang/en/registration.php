@@ -6,16 +6,16 @@ return [
      'success_text'    => 'Your registration has been successfully submitted. We will contact you.',
      'fields' => [
           'ico' => [
-               'label' => 'Company ID (IČ)',
-               'hint'  => 'Enter your Czech company ID and click the button to load data from ARES',
+               'label' => 'Company registration number',
+               'hint'  => 'Your company registration number as issued in your country',
           ],
           'company' => [
                'label' => 'Company name',
-               'hint'  => 'Auto-filled from ARES, can be edited',
+               'hint'  => 'Full legal name of the company',
           ],
           'address' => [
                'label' => 'Registered address',
-               'hint'  => 'Auto-filled from ARES, can be edited',
+               'hint'  => 'Registered address of the company',
           ],
           'dic' => [
                'label' => 'VAT number (DIČ)',

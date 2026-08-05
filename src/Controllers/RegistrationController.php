@@ -264,13 +264,12 @@ class RegistrationController
                }
           }
 
-          // IČ — jen pokud je vyplněno
-          if (!empty($data['ico'])) {
+          // IČ — jen pokud je vyplněno, a formát 8 číslic (ARES) vyžadujeme
+          // jen v české verzi; zahraniční firmy mají jiný formát čísla
+          if (!empty($data['ico']) && $locale === 'cs') {
                $ico = preg_replace('/\D/', '', $data['ico']);
                if (strlen($ico) !== 8) {
-                    $errors['ico'] = $locale === 'cs'
-                         ? 'IČ musí mít 8 číslic'
-                         : 'Company ID must be 8 digits';
+                    $errors['ico'] = 'IČ musí mít 8 číslic';
                }
           }
 

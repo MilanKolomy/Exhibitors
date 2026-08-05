@@ -314,20 +314,24 @@
 							<span class="text-red-500">*</span>
 						</label>
 						<div class="flex gap-2">
-							<input type="text" name="ico" x-model="contact.ico" maxlength="8" placeholder="12345678" class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-base
+							<input type="text" name="ico" x-model="contact.ico" maxlength="{{ current_locale() == 'cs' ? 8 : 20 }}" placeholder="{{ current_locale() == 'cs' ? '12345678' : 'e.g. 1234567890' }}" class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-base
 																               focus:outline-none focus:ring-2 focus:ring-[#d96e45]" :class="{'border-red-400 bg-red-50': step2errors.ico}">
+							{% if current_locale() == 'cs' %}
 							<button type="button" @click="loadAres()" :disabled="aresLoading || contact.ico.length < 6" class="flex-shrink-0 px-3 py-2 bg-[#743a25] text-white text-sm rounded-lg
 																		               hover:bg-[#5e2e1c] disabled:opacity-40 disabled:cursor-not-allowed
 																		               transition-colors whitespace-nowrap">
 								<span x-show="!aresLoading">{{ t('common.ares_load') }}</span>
 								<span x-show="aresLoading" x-cloak>{{ t('common.ares_loading') }}</span>
 							</button>
+							{% endif %}
 						</div>
 						<p class="text-sm text-gray-400 mt-1">{{ field_hint('ico') }}</p>
 						<p x-show="step2errors.ico" x-text="step2errors.ico" class="text-sm text-red-500 mt-1"></p>
+						{% if current_locale() == 'cs' %}
 						<p x-show="aresError" class="text-sm text-red-500 mt-1">
 							{{ t('common.ares_error') }}
 						</p>
+						{% endif %}
 					</div>
 
 					{# Firma #}
@@ -1010,8 +1014,10 @@
 		
 		            if (!this.contact.ico.trim())
 		                e.ico = locale === 'cs' ? 'IČ je povinné' : 'Company ID is required';
-		            else if (!/^\d{8}$/.test(this.contact.ico.trim().replace(/\s/g, '')))
-		                e.ico = locale === 'cs' ? 'IČ musí mít 8 číslic' : 'Company ID must be 8 digits';
+		            // Formát 8 číslic (ARES) kontrolujeme jen v české verzi —
+		            // zahraniční firmy mají jiný formát identifikačního čísla
+		            else if (locale === 'cs' && !/^\d{8}$/.test(this.contact.ico.trim().replace(/\s/g, '')))
+		                e.ico = 'IČ musí mít 8 číslic';
 		
 		            if (!this.contact.company.trim())
 		                e.company = locale === 'cs' ? 'Název firmy je povinný' : 'Company name is required';
