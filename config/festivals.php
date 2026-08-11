@@ -37,7 +37,7 @@ return [
         'date_from'=> '2026-10-09',
         'date_to'  => '2026-10-11',
         'type'     => 'oc',
-        'busy'     => false,
+        'busy'     => true,
     ],
     [
         'id'       => 4,
@@ -73,7 +73,7 @@ return [
         'date_from'=> '2026-11-13',
         'date_to'  => '2026-11-15',
         'type'     => 'oc',
-        'busy'     => false,
+        'busy'     => true,
     ],
     [
         'id'       => 7,
@@ -127,7 +127,7 @@ return [
         'date_from'=> '2027-03-05',
         'date_to'  => '2027-03-07',
         'type'     => 'oc',
-        'busy'     => false,
+        'busy'     => true,
     ],
     [
         'id'       => 13,
