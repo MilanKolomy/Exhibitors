@@ -63,6 +63,7 @@ return [
           'phone'        => 'Telefon je povinný',
           'sortiment'    => 'Popis sortimentu je povinný',
           'festivals'    => 'Vyberte alespoň jeden festival',
+          'festival_busy' => 'Některý z vybraných festivalů je již plně obsazen, upravte prosím výběr',
           'terms'        => 'Musíte souhlasit s obchodními podmínkami',
           'captcha'      => 'Ověření reCAPTCHA selhalo, zkuste to prosím znovu',
      ],

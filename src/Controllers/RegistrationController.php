@@ -285,8 +285,10 @@ class RegistrationController
 
           // ── Festivaly — čteme z festivals_data (JSON) ──────────────────────
           $festivalsData = json_decode($data['festivals_data'] ?? '{}', true) ?? [];
-          $validFestivals = array_column(
-               require __DIR__ . '/../../config/festivals.php',
+          $festivalsConfig = require __DIR__ . '/../../config/festivals.php';
+          $validFestivals = array_column($festivalsConfig, 'id');
+          $busyFestivals  = array_column(
+               array_filter($festivalsConfig, fn(array $f): bool => !empty($f['busy'])),
                'id'
           );
 
@@ -297,6 +299,11 @@ class RegistrationController
                foreach ($festivalsData as $fid => $fData) {
                     if (!in_array((int) $fid, $validFestivals, true)) {
                          $errors['festivals'] = $e['festivals'];
+                         break;
+                    }
+                    // Mezitím obsazený festival — výběr už není platný
+                    if (in_array((int) $fid, $busyFestivals, true)) {
+                         $errors['festivals'] = $e['festival_busy'];
                          break;
                     }
                     if (empty($fData['space']) || !isset($fData['electricity'])) {

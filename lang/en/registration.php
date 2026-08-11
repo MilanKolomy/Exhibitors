@@ -63,6 +63,7 @@ return [
           'phone'        => 'Phone number is required',
           'sortiment'    => 'Product description is required',
           'festivals'    => 'Please select at least one festival',
+          'festival_busy' => 'One of the selected festivals is fully booked, please adjust your selection',
           'terms'        => 'You must agree to the Terms & Conditions',
           'captcha'      => 'reCAPTCHA verification failed, please try again',
      ],

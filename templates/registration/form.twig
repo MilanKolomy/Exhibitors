@@ -162,22 +162,28 @@
 					<div class="space-y-3">
 						<template x-for="festival in festivalsConfig" :key="festival.id">
 							<div
-								class="border rounded-xl overflow-hidden transition-all duration-200" :class="isSelected(festival.id)
+								class="border rounded-xl overflow-hidden transition-all duration-200" :class="festival.busy
+																																 ? 'border-gray-200 bg-gray-50'
+																																 : (isSelected(festival.id)
 																																 ? 'border-[#743a25] shadow-sm'
-																																 : 'border-gray-200 hover:border-[#e89a7a]'">
+																																 : 'border-gray-200 hover:border-[#e89a7a]')">
 
 								{# Hlavička festivalu — checkbox #}
-								<label class="flex items-center justify-between p-4 cursor-pointer" :class="isSelected(festival.id) ? 'bg-[#fdf5f2]' : 'bg-white hover:bg-gray-50'">
+								<label class="flex items-center justify-between p-4" :class="festival.busy
+																																 ? 'bg-gray-50 cursor-not-allowed'
+																																 : (isSelected(festival.id)
+																																 ? 'bg-[#fdf5f2] cursor-pointer'
+																																 : 'bg-white hover:bg-gray-50 cursor-pointer')">
 
 									<div class="flex items-center gap-3">
-										<input type="checkbox" :checked="isSelected(festival.id)" @change="toggleFestival(festival)" class="w-5 h-5 rounded text-[#743a25] focus:ring-[#d96e45] cursor-pointer">
+										<input type="checkbox" :checked="isSelected(festival.id)" :disabled="festival.busy" @change="toggleFestival(festival)" class="w-5 h-5 rounded text-[#743a25] focus:ring-[#d96e45]" :class="festival.busy ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'">
 										<div>
-											<div class="font-semibold text-gray-900 text-base">
+											<div class="font-semibold text-base" :class="festival.busy ? 'text-gray-400' : 'text-gray-900'">
 												<span x-text="festival.city"></span>
 												<span class="text-gray-400 mx-1">–</span>
 												<span x-text="festival.name"></span>
 											</div>
-											<div class="text-sm text-gray-500 mt-0.5">
+											<div class="text-sm mt-0.5" :class="festival.busy ? 'text-gray-400' : 'text-gray-500'">
 												<span x-text="formatDateRange(festival.date_from, festival.date_to)"></span>
 											</div>
 										</div>
@@ -185,16 +191,21 @@
 
 									{# Cena festivalu vpravo #}
 									<div class="text-right ml-4">
-										<template x-if="isSelected(festival.id) && selected[festival.id].priceTotal > 0">
+										<template x-if="festival.busy">
+											<span class="inline-flex items-center gap-1 rounded-full bg-gray-200 text-gray-600 text-xs font-semibold uppercase tracking-wide px-3 py-1">
+												{% if current_locale() == 'cs' %}Obsazeno{% else %}Fully booked{% endif %}
+											</span>
+										</template>
+										<template x-if="!festival.busy && isSelected(festival.id) && selected[festival.id].priceTotal > 0">
 											<span class="font-bold text-[#743a25] text-lg" x-text="formatPrice(selected[festival.id].priceTotal)"></span>
 										</template>
-										<template x-if="!isSelected(festival.id)">
+										<template x-if="!festival.busy && !isSelected(festival.id)">
 											<span class="text-gray-300 text-sm">
 												{% if current_locale() == 'cs' %}vybrat{% else %}select
 												{% endif %}
 											</span>
 										</template>
-										<template x-if="isSelected(festival.id) && selected[festival.id].priceTotal === 0">
+										<template x-if="!festival.busy && isSelected(festival.id) && selected[festival.id].priceTotal === 0">
 											<span class="text-gray-400 text-sm">—</span>
 										</template>
 									</div>
@@ -856,7 +867,7 @@
 		            Object.keys(oldFestivals).forEach(function(id) {
 		                const d = oldFestivals[id];
 		                const festival = festMap[parseInt(id)];
-		                if (!festival) return;
+		                if (!festival || festival.busy) return;
 		
 		                result[id] = {
 		                    festival:    festival,
@@ -880,6 +891,9 @@
 		        // ── Metody ───────────────────────────────────────────────────────
 		
 		        init() {
+                         // Přepočet ceny — obsazené festivaly se do výběru neobnovují
+                         this.calculateTotal();
+
                          this.$watch('termsAccepted', function(val) {
                               if (val && this.allItemsChecked()) this.step1errorShown = false;
                          }.bind(this));
@@ -911,6 +925,9 @@
                   },
 		
 		        toggleFestival(festival) {
+		            // Plně obsazený festival nelze vybrat
+		            if (festival.busy) return;
+
 		            if (this.isSelected(festival.id)) {
 		                const newSelected = {};
 		                Object.keys(this.selected).forEach(k => {

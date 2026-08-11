@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+// 'busy' => true — festival je plně obsazen; nelze jej v registraci vybrat
 return [
      [
         'id'       => 16,
@@ -9,6 +10,7 @@ return [
         'date_from'=> '2026-09-18',
         'date_to'  => '2026-09-20',
         'type'     => 'oc',
+        'busy'     => false,
     ],
     [
         'id'       => 1,
@@ -17,6 +19,7 @@ return [
         'date_from'=> '2026-09-26',
         'date_to'  => '2026-09-28',
         'type'     => 'hala',
+        'busy'     => false,
     ],
     [
         'id'       => 2,
@@ -25,6 +28,7 @@ return [
         'date_from'=> '2026-10-03',
         'date_to'  => '2026-10-04',
         'type'     => 'hala',
+        'busy'     => false,
     ],
     [
         'id'       => 3,
@@ -33,6 +37,7 @@ return [
         'date_from'=> '2026-10-09',
         'date_to'  => '2026-10-11',
         'type'     => 'oc',
+        'busy'     => false,
     ],
     [
         'id'       => 4,
@@ -41,6 +46,7 @@ return [
         'date_from'=> '2026-10-16',
         'date_to'  => '2026-10-18',
         'type'     => 'oc',
+        'busy'     => false,
     ],
     [
         'id'       => 5,
@@ -49,6 +55,7 @@ return [
         'date_from'=> '2026-10-24',
         'date_to'  => '2026-10-25',
         'type'     => 'hala',
+        'busy'     => false,
     ],
     [
         'id'       => 6,
@@ -57,6 +64,7 @@ return [
         'date_from'=> '2026-10-31',
         'date_to'  => '2026-11-01',
         'type'     => 'hala',
+        'busy'     => false,
     ],
      [
         'id'       => 17,
@@ -65,6 +73,7 @@ return [
         'date_from'=> '2026-11-13',
         'date_to'  => '2026-11-15',
         'type'     => 'oc',
+        'busy'     => false,
     ],
     [
         'id'       => 7,
@@ -73,6 +82,7 @@ return [
         'date_from'=> '2027-01-22',
         'date_to'  => '2027-01-24',
         'type'     => 'oc',
+        'busy'     => false,
     ],
     [
         'id'       => 8,
@@ -81,6 +91,7 @@ return [
         'date_from'=> '2027-02-06',
         'date_to'  => '2027-02-07',
         'type'     => 'hala',
+        'busy'     => false,
     ],
     [
         'id'       => 9,
@@ -89,6 +100,7 @@ return [
         'date_from'=> '2027-02-12',
         'date_to'  => '2027-02-14',
         'type'     => 'oc',
+        'busy'     => false,
     ],
     [
         'id'       => 10,
@@ -97,6 +109,7 @@ return [
         'date_from'=> '2027-02-12',
         'date_to'  => '2027-02-14',
         'type'     => 'oc',
+        'busy'     => false,
     ],
     [
         'id'       => 11,
@@ -105,6 +118,7 @@ return [
         'date_from'=> '2027-02-27',
         'date_to'  => '2027-02-28',
         'type'     => 'hala',
+        'busy'     => false,
     ],
     [
         'id'       => 12,
@@ -113,6 +127,7 @@ return [
         'date_from'=> '2027-03-05',
         'date_to'  => '2027-03-07',
         'type'     => 'oc',
+        'busy'     => false,
     ],
     [
         'id'       => 13,
@@ -121,6 +136,7 @@ return [
         'date_from'=> '2027-03-13',
         'date_to'  => '2027-03-14',
         'type'     => 'hala',
+        'busy'     => false,
     ],
     [
         'id'       => 14,
@@ -129,6 +145,7 @@ return [
         'date_from'=> '2027-03-19',
         'date_to'  => '2027-03-21',
         'type'     => 'oc',
+        'busy'     => false,
     ],
     [
         'id'       => 15,
@@ -137,5 +154,6 @@ return [
         'date_from'=> '2027-04-17',
         'date_to'  => '2027-04-18',
         'type'     => 'hala',
+        'busy'     => false,
     ],
 ];
