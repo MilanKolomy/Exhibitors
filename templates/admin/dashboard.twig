@@ -199,9 +199,13 @@
                                                        <tr>
                                                             <td class="text-gray-400 py-1 pr-4 whitespace-nowrap">Web</td>
                                                             <td>
-                                                                 <a href="{{ ex.website }}" target="_blank"
+                                                                 {# Doplň schéma — bez něj se odkaz bere jako relativní #}
+                                                                 {% set web = ex.website|trim %}
+                                                                 {% set web_url = (web|lower starts with 'http://' or web|lower starts with 'https://')
+                                                                      ? web : 'https://' ~ web %}
+                                                                 <a href="{{ web_url }}" target="_blank" rel="noopener noreferrer"
                                                                  class="text-[#743a25] hover:underline">
-                                                                      {{ ex.website }}
+                                                                      {{ web }}
                                                                  </a>
                                                             </td>
                                                        </tr>
